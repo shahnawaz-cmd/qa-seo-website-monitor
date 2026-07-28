@@ -1,0 +1,82 @@
+name: Universal Website Monitoring
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+on:
+  schedule:
+    # Run daily at midnight
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target Website/Sitemap URL to monitor'
+        required: true
+        default: 'https://detailedvehiclehistory.com'
+      batch_size:
+        description: 'Number of URLs to check in this batch'
+        required: false
+        default: '50'
+      batch_index:
+        description: 'Index of the batch to run (0, 1, 2, ...)'
+        required: false
+        default: '0'
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: Clean previous HTML report
+      run: rm -rf playwright-report/
+
+    - name: Compile Code
+      run: npm run build
+
+    - name: Run Sitemap Discovery
+      run: node dist/discover.js "${{ github.event.inputs.target_url || 'https://detailedvehiclehistory.com' }}"
+
+    - name: Execute Playwright Monitor Tests
+      env:
+        MONITOR_URL: "${{ github.event.inputs.target_url || 'https://detailedvehiclehistory.com' }}"
+        BATCH_SIZE: "${{ github.event.inputs.batch_size || '50' }}"
+        BATCH_INDEX: "${{ github.event.inputs.batch_index || '0' }}"
+      run: npx playwright test
+
+    - name: Deploy report to GitHub Pages
+      if: always()
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./playwright-report
+        keep_files: true
+
+    - name: Send Slack Notification
+      if: always()
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        GITHUB_SERVER: ${{ github.server_url }}
+        GITHUB_REPO: ${{ github.repository }}
+        GITHUB_RUN: ${{ github.run_id }}
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_REF: ${{ github.ref_name }}
+        GITHUB_SHA_VAL: ${{ github.sha }}
+        GITHUB_EVENT: ${{ github.event_name }}
+      run: node slack-notify.js
