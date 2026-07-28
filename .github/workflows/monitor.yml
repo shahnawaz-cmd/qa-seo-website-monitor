@@ -6,6 +6,9 @@ permissions:
   id-token: write
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # Run daily at midnight
     - cron: '0 0 * * *'
