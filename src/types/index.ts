@@ -19,15 +19,16 @@ export interface PageReport {
   statusCode: number;
   statusText: string;
   loadTimeMs: number;
-  loadTimeSec: number; // Added page load time in seconds
+  loadTimeSec: number;
   title: string;
   metaDescription: string;
   h1Tags: string[];
   canonical: string;
   robotsMeta: string;
-  isCrawlable: boolean; // Added crawlability indicator
+  isCrawlable: boolean;
   consoleErrors: string[];
   brokenInternalLinks: LinkStatus[];
+  extractedLinks: string[]; // List of raw internal links extracted on the page for post-crawl validation
   screenshotPath?: string;
   validations: ValidationResult[];
   timestamp: string;

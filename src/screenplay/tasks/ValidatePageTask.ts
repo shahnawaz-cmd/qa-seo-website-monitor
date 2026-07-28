@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Page, Response } from '@playwright/test';
+import { Page, Response, APIRequestContext } from '@playwright/test';
+import * as cheerio from 'cheerio';
 import { Actor } from '../Actor';
 import { Task } from '../Task';
 import { BrowseTheWeb } from '../abilities/BrowseTheWeb';
@@ -15,24 +16,148 @@ export class ValidatePageTask extends Task {
   // Condition-based configuration parameters
   private readonly maxRetries = process.env.MAX_RETRIES ? parseInt(process.env.MAX_RETRIES) : 1;
   private readonly navigationTimeout = process.env.NAVIGATION_TIMEOUT ? parseInt(process.env.NAVIGATION_TIMEOUT) : 45000;
-  private readonly linkTimeout = process.env.LINK_TIMEOUT ? parseInt(process.env.LINK_TIMEOUT) : 10000;
 
   constructor(
     private readonly url: string,
     private readonly screenshotDir: string,
+    private readonly mode: 'fast' | 'full' = 'fast',
+    private readonly requestContext?: APIRequestContext,
     private readonly rules: ValidationRule[] = defaultValidationRules
   ) {
     super();
   }
 
-  static of(url: string, screenshotDir: string, rules?: ValidationRule[]): ValidatePageTask {
-    return new ValidatePageTask(url, screenshotDir, rules);
+  static of(
+    url: string, 
+    screenshotDir: string, 
+    mode?: 'fast' | 'full', 
+    requestContext?: APIRequestContext, 
+    rules?: ValidationRule[]
+  ): ValidatePageTask {
+    return new ValidatePageTask(url, screenshotDir, mode, requestContext, rules);
   }
 
   async performAs(actor: Actor): Promise<void> {
+    if (this.mode === 'fast') {
+      await this.performFastAudit(actor);
+    } else {
+      await this.performFullBrowserAudit(actor);
+    }
+  }
+
+  /**
+   * Mode A: Fast HTTP Crawl using Cheerio
+   * Extracts links to memory but does not check them over network, avoiding WAF triggers.
+   */
+  private async performFastAudit(actor: Actor): Promise<void> {
+    let attempts = 0;
+    let statusCode = 0;
+    let statusText = 'Unknown Error';
+    let loadTimeMs = 0;
+    let html = '';
+
+    while (attempts <= this.maxRetries) {
+      try {
+        const startTime = Date.now();
+        if (this.requestContext) {
+          const res = await this.requestContext.get(this.url, { 
+            timeout: this.navigationTimeout,
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+          });
+          loadTimeMs = Date.now() - startTime;
+          statusCode = res.status();
+          statusText = res.statusText();
+          html = await res.text();
+        } else {
+          const api = actor.abilityTo(CallAnApi);
+          const res = await api.client.get(this.url, { timeout: this.navigationTimeout });
+          loadTimeMs = Date.now() - startTime;
+          statusCode = res.status;
+          statusText = res.statusText;
+          html = res.data;
+        }
+        break;
+      } catch (err: any) {
+        attempts++;
+        statusText = err.message || 'Error';
+        statusCode = err.response?.status || 0;
+        if (attempts > this.maxRetries) {
+          break;
+        }
+      }
+    }
+
+    let title = '';
+    let metaDescription = '';
+    let h1Tags: string[] = [];
+    let canonical = '';
+    let robotsMeta = '';
+    const extractedLinks: string[] = [];
+
+    if (statusCode > 0 && statusCode < 400 && html) {
+      try {
+        const $ = cheerio.load(html);
+        title = $('title').text() || '';
+        metaDescription = $('meta[name="description"]').attr('content') || '';
+        h1Tags = $('h1').map((_, el) => $(el).text() || '').get();
+        canonical = $('link[rel="canonical"]').attr('href') || '';
+        robotsMeta = $('meta[name="robots"]').attr('content') || '';
+
+        // Extract internal links for later consolidated validation
+        const currentHost = new URL(this.url).host;
+        $('a').each((_, el) => {
+          const href = $(el).attr('href');
+          if (href) {
+            try {
+              const urlObj = new URL(href, this.url);
+              if (urlObj.host === currentHost && !href.includes('#') && !href.startsWith('javascript:')) {
+                extractedLinks.push(urlObj.href);
+              }
+            } catch (e) {
+              // Ignore invalid links
+            }
+          }
+        });
+      } catch (parseErr: any) {
+        console.error(`[ValidatePageTask] Cheerio parse error for ${this.url}:`, parseErr.message);
+      }
+    }
+
+    const loadTimeSec = Math.round((loadTimeMs / 1000) * 100) / 100;
+    const isCrawlable = (statusCode >= 200 && statusCode < 400) && !robotsMeta.toLowerCase().includes('noindex');
+
+    const pageReport: PageReport = {
+      url: this.url,
+      statusCode,
+      statusText,
+      loadTimeMs,
+      loadTimeSec,
+      title,
+      metaDescription,
+      h1Tags,
+      canonical,
+      robotsMeta,
+      isCrawlable,
+      consoleErrors: [],
+      brokenInternalLinks: [],
+      extractedLinks: Array.from(new Set(extractedLinks)), // Deduplicated list of page links
+      timestamp: new Date().toISOString(),
+      validations: []
+    };
+
+    this.runValidations(pageReport);
+  }
+
+  /**
+   * Mode B: Full Browser Audit using Playwright/Chromium
+   * Extracts links to memory without making redundant network link checks during page load.
+   */
+  private async performFullBrowserAudit(actor: Actor): Promise<void> {
     const { page } = actor.abilityTo(BrowseTheWeb);
 
-    // Speed Optimization 1: Network Resource blocking
+    // Speed Optimization: Network Resource blocking
     await page.route('**/*', (route) => {
       const type = route.request().resourceType();
       const url = route.request().url();
@@ -77,7 +202,6 @@ export class ValidatePageTask extends Task {
         if (attempts > this.maxRetries) {
           break;
         }
-        console.log(`[ValidatePageTask] Retry ${attempts}/${this.maxRetries} for URL: ${this.url}`);
       }
     }
 
@@ -89,7 +213,7 @@ export class ValidatePageTask extends Task {
     let h1Tags: string[] = [];
     let canonical = '';
     let robotsMeta = '';
-    const brokenInternalLinks: LinkStatus[] = [];
+    const extractedLinks: string[] = [];
 
     if (statusCode > 0 && statusCode < 400) {
       try {
@@ -114,7 +238,7 @@ export class ValidatePageTask extends Task {
           return element ? element.getAttribute('content') || '' : '';
         });
 
-        // Discover and check internal links
+        // Extract internal links
         const internalLinks = await page.evaluate((currentHost) => {
           const anchors = Array.from(document.querySelectorAll('a'));
           return anchors
@@ -129,55 +253,19 @@ export class ValidatePageTask extends Task {
             });
         }, new URL(this.url).host);
 
-        // Deduplicate internal links (Limit link check per page for speed)
-        const uniqueLinks = Array.from(new Set(internalLinks)).slice(0, 15);
+        extractedLinks.push(...internalLinks);
 
-        // Playwright Request Context bypasses Cloudflare/firewall blocks by routing through the active browser network stack
-        await Promise.all(
-          uniqueLinks.map(async (link) => {
-            try {
-              let res;
-              try {
-                // Try HEAD request first using Chromium context
-                res = await page.request.head(link, { timeout: this.linkTimeout });
-              } catch (headErr) {
-                // Fallback to GET
-                res = await page.request.get(link, { timeout: this.linkTimeout });
-              }
-
-              const ok = res.status() >= 200 && res.status() < 400;
-              brokenInternalLinks.push({
-                url: link,
-                statusCode: res.status(),
-                statusText: res.statusText(),
-                passed: ok
-              });
-            } catch (linkErr: any) {
-              brokenInternalLinks.push({
-                url: link,
-                statusCode: 500,
-                statusText: linkErr.message || 'Timeout/Error',
-                passed: false
-              });
-            }
-          })
-        );
-
-      } catch (extractErr) {
-        console.error(`[ValidatePageTask] Error extracting DOM elements for ${this.url}:`, extractErr);
+      } catch (extractErr: any) {
+        console.error(`[ValidatePageTask] Browser extraction error for ${this.url}:`, extractErr.message);
       }
     }
 
-    // Clean up event listener
+    // Clean up listener
     page.off('console', handleConsole);
 
-    // Calculate Load Time in seconds
     const loadTimeSec = Math.round((loadTimeMs / 1000) * 100) / 100;
-
-    // A page is crawlable if: status is healthy, AND robots meta doesn't restrict search engines (noindex)
     const isCrawlable = (statusCode >= 200 && statusCode < 400) && !robotsMeta.toLowerCase().includes('noindex');
 
-    // Build the initial report object
     const pageReport: PageReport = {
       url: this.url,
       statusCode,
@@ -191,36 +279,21 @@ export class ValidatePageTask extends Task {
       robotsMeta,
       isCrawlable,
       consoleErrors,
-      brokenInternalLinks,
+      brokenInternalLinks: [],
+      extractedLinks: Array.from(new Set(extractedLinks)),
       timestamp: new Date().toISOString(),
       validations: []
     };
 
-    // Run modular validation rules
-    const validations: ValidationResult[] = [];
+    // Take screenshot on failure
     let hasCriticalFailure = statusCode >= 400 || statusCode === 0;
-
     for (const rule of this.rules) {
-      try {
-        const result = rule.validate(pageReport);
-        validations.push(result);
-        if (!result.passed && result.severity === 'error') {
-          hasCriticalFailure = true;
-        }
-      } catch (ruleErr: any) {
-        validations.push({
-          ruleName: rule.name,
-          passed: false,
-          severity: 'error',
-          message: `Rule threw exception: ${ruleErr.message}`
-        });
+      const result = rule.validate(pageReport);
+      if (!result.passed && result.severity === 'error') {
         hasCriticalFailure = true;
       }
     }
 
-    pageReport.validations = validations;
-
-    // Take screenshot on failure
     if (hasCriticalFailure) {
       try {
         if (!fs.existsSync(this.screenshotDir)) {
@@ -230,11 +303,31 @@ export class ValidatePageTask extends Task {
         const screenshotPath = path.join(this.screenshotDir, `${safeName}.png`);
         await page.screenshot({ path: screenshotPath, fullPage: true });
         pageReport.screenshotPath = screenshotPath;
-      } catch (screenshotErr) {
-        console.error(`[ValidatePageTask] Failed to capture screenshot for ${this.url}:`, screenshotErr);
+      } catch (screenshotErr: any) {
+        console.error(`[ValidatePageTask] Failed to capture screenshot for ${this.url}:`, screenshotErr.message);
       }
     }
 
+    this.runValidations(pageReport);
+  }
+
+  private runValidations(pageReport: PageReport): void {
+    const validations: ValidationResult[] = [];
+    
+    for (const rule of this.rules) {
+      try {
+        validations.push(rule.validate(pageReport));
+      } catch (ruleErr: any) {
+        validations.push({
+          ruleName: rule.name,
+          passed: false,
+          severity: 'error',
+          message: `Rule exception: ${ruleErr.message}`
+        });
+      }
+    }
+
+    pageReport.validations = validations;
     this.report = pageReport;
   }
 

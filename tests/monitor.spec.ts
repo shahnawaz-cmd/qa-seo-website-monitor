@@ -40,29 +40,62 @@ console.log(`[Playwright Spec] Loaded batch ${isAll ? 'ALL' : batchIndex + 1} (S
 
 test.describe('Universal Website Audit', () => {
   for (const url of finalUrls) {
-    test(`Auditing: ${url}`, async ({ page, context }) => {
-      const auditor = Actor.named(`Auditor for ${url}`)
-        .whoCan(BrowseTheWeb.using(page, context))
-        .whoCan(CallAnApi.at(url));
+    const cleanUrl = url.replace(TARGET_URL, '');
+    const isTemplateUrl = 
+      url === TARGET_URL || 
+      cleanUrl === '/' ||
+      cleanUrl === '/vin-check' || 
+      cleanUrl === '/contact-us' || 
+      cleanUrl === '/blog' || 
+      cleanUrl === '/window-sticker';
 
-      const validateTask = ValidatePageTask.of(url, './reports/screenshots');
-      await auditor.attemptsTo(validateTask);
-      const report = validateTask.getReport();
+    if (isTemplateUrl) {
+      // FULL BROWSER MODE: Launches browser context, loads page in Chromium, tracks logs, screenshots
+      test(`Auditing [FULL]: ${url}`, async ({ page, context }) => {
+        const auditor = Actor.named(`Auditor for ${url}`)
+          .whoCan(BrowseTheWeb.using(page, context))
+          .whoCan(CallAnApi.at(url));
 
-      if (report) {
-        // Attach all page data, SEO audits, console errors, load time, and link status to the Playwright report
-        await test.info().attach('pageReport', {
-          body: JSON.stringify(report, null, 2),
-          contentType: 'application/json'
-        });
+        const validateTask = ValidatePageTask.of(url, './reports/screenshots', 'full', page.request);
+        await auditor.attemptsTo(validateTask);
+        const report = validateTask.getReport();
 
-        // Perform standard Playwright assertions
-        expect(report.statusCode).toBeGreaterThan(0);
-        expect(report.statusCode).toBeLessThan(400);
-        
-        const failedRules = report.validations.filter(v => !v.passed && v.severity === 'error');
-        expect(failedRules).toEqual([]);
-      }
-    });
+        if (report) {
+          await test.info().attach('pageReport', {
+            body: JSON.stringify(report, null, 2),
+            contentType: 'application/json'
+          });
+
+          expect(report.statusCode).toBeGreaterThan(0);
+          expect(report.statusCode).toBeLessThan(400);
+          
+          const failedRules = report.validations.filter(v => !v.passed && v.severity === 'error');
+          expect(failedRules).toEqual([]);
+        }
+      });
+    } else {
+      // FAST HTTP MODE: Uses Playwright request context to fetch HTML (no browser window launch!)
+      test(`Auditing [FAST]: ${url}`, async ({ request }) => {
+        const auditor = Actor.named(`Auditor for ${url}`)
+          .whoCan(CallAnApi.at(url));
+
+        const validateTask = ValidatePageTask.of(url, './reports/screenshots', 'fast', request);
+        await auditor.attemptsTo(validateTask);
+        const report = validateTask.getReport();
+
+        if (report) {
+          await test.info().attach('pageReport', {
+            body: JSON.stringify(report, null, 2),
+            contentType: 'application/json'
+          });
+
+          expect(report.statusCode).toBeGreaterThan(0);
+          expect(report.statusCode).toBeLessThan(400);
+          
+          const failedRules = report.validations.filter(v => !v.passed && v.severity === 'error');
+          expect(failedRules).toEqual([]);
+        }
+      });
+    }
   }
 });

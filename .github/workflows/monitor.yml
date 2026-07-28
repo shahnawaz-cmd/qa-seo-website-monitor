@@ -19,18 +19,65 @@ on:
         required: true
         default: 'https://detailedvehiclehistory.com'
       batch_size:
-        description: 'Number of URLs to check in this batch ("all" for all URLs)'
+        description: 'Number of URLs to check in each parallel batch'
         required: false
-        default: 'all'
-      batch_index:
-        description: 'Index of the batch to run (ignored if batch_size is "all")'
-        required: false
-        default: '0'
+        default: '50'
 
 jobs:
-  monitor:
+  discover:
+    name: 🔍 Sitemap URL Discovery
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      target_url: ${{ steps.vars.outputs.target_url }}
+      batch_size: ${{ steps.vars.outputs.batch_size }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Compile Code
+      run: npm run build
+
+    - name: Run Sitemap Discovery
+      run: node dist/discover.js "${{ github.event.inputs.target_url || 'https://detailedvehiclehistory.com' }}"
+
+    - name: Calculate Matrix Batches
+      id: set-matrix
+      env:
+        BATCH_SIZE: "${{ github.event.inputs.batch_size || '50' }}"
+      run: |
+        echo "matrix=$(node dist/generate-matrix.js)" >> $GITHUB_OUTPUT
+
+    - name: Set Configuration Outputs
+      id: vars
+      run: |
+        echo "target_url=${{ github.event.inputs.target_url || 'https://detailedvehiclehistory.com' }}" >> $GITHUB_OUTPUT
+        echo "batch_size=${{ github.event.inputs.batch_size || '50' }}" >> $GITHUB_OUTPUT
+
+    - name: Upload Discovered URL List
+      uses: actions/upload-artifact@v4
+      with:
+        name: discovered-urls
+        path: discovered_urls.json
+
+  audit:
+    name: 🧪 Audit Batch ${{ matrix.batch_index }}
+    needs: discover
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        batch_index: ${{ fromJson(needs.discover.outputs.matrix) }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -47,33 +94,79 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps chromium
 
-    - name: Clean previous HTML report
-      run: rm -rf playwright-report/
-
     - name: Compile Code
       run: npm run build
 
-    - name: Run Sitemap Discovery
-      run: node dist/discover.js "${{ github.event.inputs.target_url || 'https://detailedvehiclehistory.com' }}"
+    - name: Download Discovered URL List
+      uses: actions/download-artifact@v4
+      with:
+        name: discovered-urls
+        path: ./
 
     - name: Execute Playwright Monitor Tests
-      continue-on-error: true # Ensure pipeline doesn't fail on test assertions, sending failures to Slack/Reports instead
       env:
-        MONITOR_URL: "${{ github.event.inputs.target_url || 'https://detailedvehiclehistory.com' }}"
-        BATCH_SIZE: "${{ github.event.inputs.batch_size || 'all' }}"
-        BATCH_INDEX: "${{ github.event.inputs.batch_index || '0' }}"
-      run: npx playwright test
-
-    - name: Deploy report to GitHub Pages
+        MONITOR_URL: "${{ needs.discover.outputs.target_url }}"
+        BATCH_SIZE: "${{ needs.discover.outputs.batch_size }}"
+        BATCH_INDEX: "${{ matrix.batch_index }}"
+        PLAYWRIGHT_JSON_OUTPUT_NAME: "playwright-report/results-${{ matrix.batch_index }}.json"
+      run: |
+        npx playwright test --reporter=json,list
+      # We override the output file name by copying results.json if generated
+      # Playwright writes results to the location configured in playwright.config.ts by default
+    
+    - name: Rename Result File for Sharding
       if: always()
-      uses: peaceiris/actions-gh-pages@v3
+      run: |
+        mkdir -p playwright-report
+        if [ -f playwright-report/results.json ]; then
+          mv playwright-report/results.json playwright-report/results-${{ matrix.batch_index }}.json
+        fi
+
+    - name: Upload Batch Result Artifact
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./playwright-report
-        keep_files: true
+        name: results-${{ matrix.batch_index }}
+        path: playwright-report/results-${{ matrix.batch_index }}.json
+
+    - name: Upload HTML report fragment
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-report-${{ matrix.batch_index }}
+        path: playwright-report/
+
+  report:
+    name: 📊 Consolidate & Notify Slack
+    needs: [discover, audit]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Download All Batch Results
+      uses: actions/download-artifact@v4
+      with:
+        path: playwright-report-temp
+
+    - name: Consolidate Results Directory
+      run: |
+        mkdir -p playwright-report
+        # Find all JSON results-*.json files from downloaded artifacts and move them to playwright-report
+        find playwright-report-temp/ -name "results-*.json" -exec cp {} playwright-report/ \;
+        ls -la playwright-report/
 
     - name: Send Slack Notification
-      if: always()
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         GITHUB_SERVER: ${{ github.server_url }}
