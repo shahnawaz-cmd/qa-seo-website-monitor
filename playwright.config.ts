@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Configurable timeouts via environment variables
 const testTimeout = process.env.TEST_TIMEOUT ? parseInt(process.env.TEST_TIMEOUT) : 60000;
-const workerCount = process.env.WORKERS ? parseInt(process.env.WORKERS) : (process.env.CI ? 3 : 5); // Set worker count: 3 for CI, 5 for local runs
+const workerCount = process.env.WORKERS ? parseInt(process.env.WORKERS) : 10; // Set default workers to 10 for both local and CI
 
 export default defineConfig({
   testDir: './tests',

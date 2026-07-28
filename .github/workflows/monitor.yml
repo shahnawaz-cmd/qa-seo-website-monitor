@@ -19,11 +19,11 @@ on:
         required: true
         default: 'https://detailedvehiclehistory.com'
       batch_size:
-        description: 'Number of URLs to check in this batch'
+        description: 'Number of URLs to check in this batch ("all" for all URLs)'
         required: false
-        default: '50'
+        default: 'all'
       batch_index:
-        description: 'Index of the batch to run (0, 1, 2, ...)'
+        description: 'Index of the batch to run (ignored if batch_size is "all")'
         required: false
         default: '0'
 
@@ -57,9 +57,10 @@ jobs:
       run: node dist/discover.js "${{ github.event.inputs.target_url || 'https://detailedvehiclehistory.com' }}"
 
     - name: Execute Playwright Monitor Tests
+      continue-on-error: true # Ensure pipeline doesn't fail on test assertions, sending failures to Slack/Reports instead
       env:
         MONITOR_URL: "${{ github.event.inputs.target_url || 'https://detailedvehiclehistory.com' }}"
-        BATCH_SIZE: "${{ github.event.inputs.batch_size || '50' }}"
+        BATCH_SIZE: "${{ github.event.inputs.batch_size || 'all' }}"
         BATCH_INDEX: "${{ github.event.inputs.batch_index || '0' }}"
       run: npx playwright test
 

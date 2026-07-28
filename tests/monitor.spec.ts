@@ -24,16 +24,19 @@ if (fs.existsSync(jsonPath)) {
   urlsToAudit = [TARGET_URL];
 }
 
-// Batch configuration variables
-const batchSize = process.env.BATCH_SIZE ? parseInt(process.env.BATCH_SIZE) : 50;
-const batchIndex = process.env.BATCH_INDEX ? parseInt(process.env.BATCH_INDEX) : 0;
-
 // Resolve the current batch segment
-const startIndex = batchIndex * batchSize;
-const endIndex = startIndex + batchSize;
-const finalUrls = urlsToAudit.slice(startIndex, endIndex);
+let finalUrls = urlsToAudit;
+const isAll = process.env.BATCH_SIZE === 'all';
+const batchSize = isAll ? urlsToAudit.length : (process.env.BATCH_SIZE ? parseInt(process.env.BATCH_SIZE) : 50);
+const batchIndex = isAll ? 0 : (process.env.BATCH_INDEX ? parseInt(process.env.BATCH_INDEX) : 0);
 
-console.log(`[Playwright Spec] Loaded batch ${batchIndex + 1} (Size: ${batchSize}). Crawling indices [${startIndex} to ${Math.min(endIndex, urlsToAudit.length) - 1}] of ${urlsToAudit.length} total URLs.`);
+if (!isAll) {
+  const startIndex = batchIndex * batchSize;
+  const endIndex = startIndex + batchSize;
+  finalUrls = urlsToAudit.slice(startIndex, endIndex);
+}
+
+console.log(`[Playwright Spec] Loaded batch ${isAll ? 'ALL' : batchIndex + 1} (Size: ${batchSize}). Auditing ${finalUrls.length} total URLs.`);
 
 test.describe('Universal Website Audit', () => {
   for (const url of finalUrls) {
