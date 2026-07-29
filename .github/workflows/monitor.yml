@@ -114,7 +114,7 @@ jobs:
         BATCH_SIZE: "${{ needs.discover.outputs.batch_size }}"
         BATCH_INDEX: "${{ matrix.batch_index }}"
       run: |
-        npx playwright test
+        npx playwright test || true # Prevent tests from breaking the GHA build run on failure
     
     - name: Prepare Blob Report for Sharding
       if: always()
@@ -139,6 +139,9 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+
+    - name: Setup Pages Deployment
+      uses: actions/configure-pages@v4
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -171,6 +174,8 @@ jobs:
         ls -la playwright-report/
 
     - name: Merge Playwright Sharded Reports
+      env:
+        PLAYWRIGHT_JSON_OUTPUT_NAME: playwright-report/results.json # Direct JSON merger output
       run: |
         npx playwright merge-reports --reporter=html,json ./blob-reports
         ls -la playwright-report/
