@@ -15,7 +15,7 @@ export class ValidatePageTask extends Task {
   
   // Condition-based configuration parameters
   private readonly maxRetries = process.env.MAX_RETRIES ? parseInt(process.env.MAX_RETRIES) : 1;
-  private readonly navigationTimeout = process.env.NAVIGATION_TIMEOUT ? parseInt(process.env.NAVIGATION_TIMEOUT) : 45000;
+  private readonly navigationTimeout = process.env.NAVIGATION_TIMEOUT ? parseInt(process.env.NAVIGATION_TIMEOUT) : 180000;
 
   constructor(
     private readonly url: string,

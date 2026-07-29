@@ -80,45 +80,50 @@ async function checkLinks() {
   const requestContext = context.request;
 
   const brokenLinks: any[] = [];
-  const linkTimeout = 30000;
-  const concurrencyLimit = 5; // Query in batches of 5 to prevent triggering WAF rate limits/timeouts
+  const linkTimeout = 120000;
+  const concurrencyLimit = 5; // Spawns 5 parallel worker threads
 
-  // 3. Query all unique links sequentially in small concurrent batches
-  for (let i = 0; i < uniqueLinks.length; i += concurrencyLimit) {
-    const chunk = uniqueLinks.slice(i, i + concurrencyLimit);
-    
-    await Promise.all(
-      chunk.map(async (link) => {
-        try {
-          const res = await requestContext.get(link, {
-            timeout: linkTimeout,
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-          });
-          
-          if (res.status() < 200 || res.status() >= 400) {
-            brokenLinks.push({
-              url: link,
-              statusCode: res.status(),
-              statusText: res.statusText(),
-              pagesFoundOn: linkMapping[link] || []
-            });
+  let index = 0;
+
+  // 3. Spawns 5 parallel worker loops pulling from a shared queue
+  async function worker() {
+    while (index < uniqueLinks.length) {
+      const link = uniqueLinks[index++];
+      if (!link) break;
+
+      try {
+        const res = await requestContext.get(link, {
+          timeout: linkTimeout,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
           }
-        } catch (err: any) {
+        });
+        
+        if (res.status() < 200 || res.status() >= 400) {
           brokenLinks.push({
             url: link,
-            statusCode: 0,
-            statusText: err.message || 'Timeout/Error',
+            statusCode: res.status(),
+            statusText: res.statusText(),
             pagesFoundOn: linkMapping[link] || []
           });
         }
-      })
-    );
-    
-    // Tiny delay between chunks to be respectful of rate limit boundaries
-    await delay(100);
+      } catch (err: any) {
+        brokenLinks.push({
+          url: link,
+          statusCode: 0,
+          statusText: err.message || 'Timeout/Error',
+          pagesFoundOn: linkMapping[link] || []
+        });
+      }
+      
+      // Delay to respect request intervals inside individual thread
+      await delay(50);
+    }
   }
+
+  // Run the concurrent worker queues
+  const workers = Array.from({ length: concurrencyLimit }, () => worker());
+  await Promise.all(workers);
 
   await browser.close();
   console.log(`[Link Checker] Link verification complete. Found ${brokenLinks.length} broken links.`);

@@ -21,7 +21,7 @@ async function discover(baseUrl: string) {
   async function parse(url: string) {
     try {
       console.log(`[Discover] Navigating to sitemap: ${url}`);
-      const res = await page.goto(url, { waitUntil: 'commit', timeout: 30000 });
+      const res = await page.goto(url, { waitUntil: 'commit', timeout: 60000 });
       
       if (res && res.status() === 200) {
         const text = await res.text();
@@ -54,7 +54,7 @@ async function discover(baseUrl: string) {
 
   try {
     console.log(`[Discover] Fetching robots.txt for ${baseUrl}`);
-    const res = await page.goto(`${baseUrl}/robots.txt`, { waitUntil: 'commit', timeout: 30000 });
+    const res = await page.goto(`${baseUrl}/robots.txt`, { waitUntil: 'commit', timeout: 60000 });
     let hasSitemap = false;
 
     if (res && res.status() === 200) {

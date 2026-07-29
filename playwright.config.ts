@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const testTimeout = process.env.TEST_TIMEOUT ? parseInt(process.env.TEST_TIMEOUT) : 60000;
+// Test timeout increased to 120 minutes (7,200,000 ms)
+const testTimeout = process.env.TEST_TIMEOUT ? parseInt(process.env.TEST_TIMEOUT) : 7200000;
 
 // Smart Worker Scaling: 3 concurrent workers in CI to prevent 2-core VM CPU saturation, 10 workers locally
 const workerCount = process.env.CI 

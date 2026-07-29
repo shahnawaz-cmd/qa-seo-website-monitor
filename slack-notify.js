@@ -162,7 +162,7 @@ const publicReportUrl = githubRepo !== 'owner/repo'
     ? `https://${githubRepo.split('/')[0]}.github.io/${githubRepo.split('/')[1]}/`
     : '#';
 
-// Read dynamic site name from metadata.json
+// 1. Read dynamic site name from metadata.json
 let siteName = 'Website';
 const metadataPath = path.join(resultsDir, 'metadata.json');
 if (fs.existsSync(metadataPath)) {
@@ -173,6 +173,51 @@ if (fs.existsSync(metadataPath)) {
         }
     } catch (e) {
         console.error('Failed to parse metadata.json:', e);
+    }
+}
+
+// 2. Fallback: Extract Site Name dynamically from results.json audited URLs if metadata.json is missing
+if (siteName === 'Website' && filesToParse.length > 0) {
+    try {
+        const sampleData = JSON.parse(fs.readFileSync(filesToParse[0], 'utf8'));
+        let sampleUrl = '';
+        
+        function findUrl(suite) {
+            if (suite.specs) {
+                for (const spec of suite.specs) {
+                    if (spec.title && spec.title.includes('https://')) {
+                        const match = spec.title.match(/https?:\/\/[^\s]+/);
+                        if (match) {
+                            sampleUrl = match[0];
+                            return;
+                        }
+                    }
+                }
+            }
+            if (suite.suites) {
+                for (const subSuite of suite.suites) {
+                    findUrl(subSuite);
+                    if (sampleUrl) return;
+                }
+            }
+        }
+
+        if (sampleData.suites) {
+            for (const suite of sampleData.suites) {
+                findUrl(suite);
+                if (sampleUrl) break;
+            }
+        }
+
+        if (sampleUrl) {
+            const parsedSample = new url.URL(sampleUrl);
+            siteName = parsedSample.host.replace('www.', '').split('.')[0].toUpperCase();
+            if (parsedSample.host.includes('detailedvehiclehistory.com')) {
+                siteName = 'DVH';
+            }
+        }
+    } catch (e) {
+        console.error('Failed to extract siteName from results.json:', e);
     }
 }
 

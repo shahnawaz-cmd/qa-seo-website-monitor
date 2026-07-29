@@ -27,6 +27,7 @@ jobs:
   discover:
     name: 🔍 Sitemap URL Discovery
     runs-on: ubuntu-latest
+    timeout-minutes: 160
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       target_url: ${{ steps.vars.outputs.target_url }}
@@ -78,6 +79,7 @@ jobs:
     name: 🧪 Audit Batch ${{ matrix.batch_index }}
     needs: discover
     runs-on: ubuntu-latest
+    timeout-minutes: 160
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -114,7 +116,7 @@ jobs:
         BATCH_SIZE: "${{ needs.discover.outputs.batch_size }}"
         BATCH_INDEX: "${{ matrix.batch_index }}"
       run: |
-        npx playwright test || true # Prevent tests from breaking the GHA build run on failure
+        npx playwright test || true
     
     - name: Prepare Blob Report for Sharding
       if: always()
@@ -135,6 +137,7 @@ jobs:
     name: 📊 Consolidate & Notify Slack
     needs: [discover, audit]
     runs-on: ubuntu-latest
+    timeout-minutes: 160
     if: always()
     steps:
     - name: Checkout Code
@@ -175,7 +178,7 @@ jobs:
 
     - name: Merge Playwright Sharded Reports
       env:
-        PLAYWRIGHT_JSON_OUTPUT_NAME: playwright-report/results.json # Direct JSON merger output
+        PLAYWRIGHT_JSON_OUTPUT_NAME: playwright-report/results.json
       run: |
         npx playwright merge-reports --reporter=html,json ./blob-reports
         ls -la playwright-report/
