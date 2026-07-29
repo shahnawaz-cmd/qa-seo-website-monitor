@@ -215,7 +215,7 @@ if (siteName === 'Website' && filesToParse.length > 0) {
             if (parsedSample.host.includes('detailedvehiclehistory.com')) {
                 siteName = 'DVH';
             } else if (parsedSample.host.includes('vehiclesreport.com')) {
-                siteName = 'VR';
+                siteName = 'VSR';
             }
         }
     } catch (e) {
