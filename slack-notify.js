@@ -241,6 +241,8 @@ if (siteName === 'Website' && filesToParse.length > 0) {
                 siteName = 'VHREU';
             } else if (parsedSample.host.includes('classicdecoder.com')) {
                 siteName = 'CD';
+            } else if (parsedSample.host.includes('instantvinreports.com')) {
+                siteName = 'IVR';
             }
         }
     } catch (e) {
