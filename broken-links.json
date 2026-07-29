@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://gmcwindowsticker.com/sample",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://gmcwindowsticker.com/pricing"
+    ]
+  }
+]
