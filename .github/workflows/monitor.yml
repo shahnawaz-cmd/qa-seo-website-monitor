@@ -44,6 +44,9 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
+    - name: Install Playwright Browsers (Required for WAF bypass during discovery)
+      run: npx playwright install --with-deps chromium
+
     - name: Compile Code
       run: npm run build
 
@@ -67,7 +70,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: discovered-urls
-        path: discovered_urls.json
+        path: playwright-report/discovered_urls.json
 
   audit:
     name: 🧪 Audit Batch ${{ matrix.batch_index }}
@@ -101,7 +104,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: discovered-urls
-        path: ./
+        path: ./playwright-report/
 
     - name: Execute Playwright Monitor Tests
       env:
@@ -111,8 +114,6 @@ jobs:
         PLAYWRIGHT_JSON_OUTPUT_NAME: "playwright-report/results-${{ matrix.batch_index }}.json"
       run: |
         npx playwright test --reporter=json,list
-      # We override the output file name by copying results.json if generated
-      # Playwright writes results to the location configured in playwright.config.ts by default
     
     - name: Rename Result File for Sharding
       if: always()
@@ -154,6 +155,12 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
+    - name: Install Playwright Browsers (Required for post-crawl link checker)
+      run: npx playwright install --with-deps chromium
+
+    - name: Compile Code
+      run: npm run build
+
     - name: Download All Batch Results
       uses: actions/download-artifact@v4
       with:
@@ -162,9 +169,12 @@ jobs:
     - name: Consolidate Results Directory
       run: |
         mkdir -p playwright-report
-        # Find all JSON results-*.json files from downloaded artifacts and move them to playwright-report
         find playwright-report-temp/ -name "results-*.json" -exec cp {} playwright-report/ \;
         ls -la playwright-report/
+
+    - name: Execute Standalone Link Checker
+      run: |
+        node dist/check-links.js
 
     - name: Send Slack Notification
       env:

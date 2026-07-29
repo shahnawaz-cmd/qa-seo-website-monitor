@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 function generateMatrix() {
-  const jsonPath = path.resolve('./discovered_urls.json');
+  const jsonPath = path.resolve('./playwright-report/discovered_urls.json');
   let urlsCount = 1;
   const batchSize = process.env.BATCH_SIZE ? parseInt(process.env.BATCH_SIZE) : 50;
 

@@ -11,7 +11,7 @@ const TARGET_URL = process.env.MONITOR_URL || 'https://detailedvehiclehistory.co
 
 // Read discovered URLs from sitemap setup
 let urlsToAudit: string[] = [];
-const jsonPath = path.resolve('./discovered_urls.json');
+const jsonPath = path.resolve('./playwright-report/discovered_urls.json');
 
 if (fs.existsSync(jsonPath)) {
   try {

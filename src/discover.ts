@@ -84,7 +84,7 @@ async function discover(baseUrl: string) {
   await browser.close();
 
   if (discovered.size === 0) {
-    if (fs.existsSync('discovered_urls.json')) {
+    if (fs.existsSync('playwright-report/discovered_urls.json')) {
       console.log('[Discover] WAF Blocked or no URLs found. Preserving committed discovered_urls.json fallback list.');
       return;
     }
@@ -92,14 +92,20 @@ async function discover(baseUrl: string) {
   }
 
   const urls = Array.from(discovered);
-  fs.writeFileSync('discovered_urls.json', JSON.stringify(urls, null, 2), 'utf-8');
+  if (!fs.existsSync('playwright-report')) {
+    fs.mkdirSync('playwright-report', { recursive: true });
+  }
+  fs.writeFileSync('playwright-report/discovered_urls.json', JSON.stringify(urls, null, 2), 'utf-8');
   console.log(`[Discover] Discovery complete. Found ${urls.length} URLs.`);
 }
 
 const target = process.argv[2] || 'https://detailedvehiclehistory.com';
 discover(target).catch((err) => {
   console.error('[Discover] Fatal discovery error:', err);
-  if (!fs.existsSync('discovered_urls.json')) {
-    fs.writeFileSync('discovered_urls.json', JSON.stringify([target]), 'utf-8');
+  if (!fs.existsSync('playwright-report/discovered_urls.json')) {
+    if (!fs.existsSync('playwright-report')) {
+      fs.mkdirSync('playwright-report', { recursive: true });
+    }
+    fs.writeFileSync('playwright-report/discovered_urls.json', JSON.stringify([target]), 'utf-8');
   }
 });
