@@ -111,31 +111,23 @@ jobs:
         MONITOR_URL: "${{ needs.discover.outputs.target_url }}"
         BATCH_SIZE: "${{ needs.discover.outputs.batch_size }}"
         BATCH_INDEX: "${{ matrix.batch_index }}"
-        PLAYWRIGHT_JSON_OUTPUT_NAME: "playwright-report/results-${{ matrix.batch_index }}.json"
       run: |
-        npx playwright test --reporter=json,list
+        npx playwright test
     
-    - name: Rename Result File for Sharding
+    - name: Prepare Blob Report for Sharding
       if: always()
       run: |
-        mkdir -p playwright-report
-        if [ -f playwright-report/results.json ]; then
-          mv playwright-report/results.json playwright-report/results-${{ matrix.batch_index }}.json
+        mkdir -p blob-report-rename
+        if [ -d blob-report ]; then
+          cp blob-report/*.zip blob-report-rename/report-${{ matrix.batch_index }}.zip
         fi
 
-    - name: Upload Batch Result Artifact
+    - name: Upload Blob Fragment Artifact
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: results-${{ matrix.batch_index }}
-        path: playwright-report/results-${{ matrix.batch_index }}.json
-
-    - name: Upload HTML report fragment
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: html-report-${{ matrix.batch_index }}
-        path: playwright-report/
+        name: blob-report-${{ matrix.batch_index }}
+        path: blob-report-rename/report-${{ matrix.batch_index }}.zip
 
   report:
     name: 📊 Consolidate & Notify Slack
@@ -146,6 +138,9 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Setup Pages Deployment
+      uses: actions/configure-pages@v4
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -155,26 +150,40 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
-    - name: Install Playwright Browsers (Required for post-crawl link checker)
+    - name: Install Playwright Browsers (Required for merge and link checker)
       run: npx playwright install --with-deps chromium
 
     - name: Compile Code
       run: npm run build
 
-    - name: Download All Batch Results
+    - name: Download All Blob Artifacts
       uses: actions/download-artifact@v4
       with:
-        path: playwright-report-temp
+        path: downloaded-blobs
 
-    - name: Consolidate Results Directory
+    - name: Consolidate Blob Directory
       run: |
-        mkdir -p playwright-report
-        find playwright-report-temp/ -name "results-*.json" -exec cp {} playwright-report/ \;
+        mkdir -p blob-reports
+        find downloaded-blobs/ -name "report-*.zip" -exec cp {} blob-reports/ \;
+        ls -la blob-reports/
+
+    - name: Merge Playwright Sharded Reports
+      run: |
+        npx playwright merge-reports --reporter=html,json ./blob-reports
         ls -la playwright-report/
 
     - name: Execute Standalone Link Checker
       run: |
         node dist/check-links.js
+
+    - name: Upload Pages HTML Artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: playwright-report/
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
 
     - name: Send Slack Notification
       env:

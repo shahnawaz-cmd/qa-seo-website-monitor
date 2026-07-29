@@ -1,24 +1,31 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Configurable timeouts via environment variables
 const testTimeout = process.env.TEST_TIMEOUT ? parseInt(process.env.TEST_TIMEOUT) : 60000;
-const workerCount = process.env.WORKERS ? parseInt(process.env.WORKERS) : 10; // 10 workers for speed
+const workerCount = process.env.WORKERS ? parseInt(process.env.WORKERS) : 10;
 
 const batchIndex = process.env.BATCH_INDEX || '0';
-const jsonOutputFile = `playwright-report/results-${batchIndex}.json`; // Unique results file per batch index
+const jsonOutputFile = `playwright-report/results-${batchIndex}.json`;
+
+// Dynamic reporters configuration
+const reporters: any[] = [['list']];
+
+if (process.env.CI) {
+  // CI uses Blob reports for parallel shard merging
+  reporters.push(['blob']);
+} else {
+  // Local runs use standard HTML and JSON reporters
+  reporters.push(['html', { open: 'never' }]);
+  reporters.push(['json', { outputFile: jsonOutputFile }]);
+}
 
 export default defineConfig({
   testDir: './tests',
   timeout: testTimeout,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.RETRIES ? parseInt(process.env.RETRIES) : 1, // 1 retry for network flakiness
+  retries: process.env.RETRIES ? parseInt(process.env.RETRIES) : 1,
   workers: workerCount,
-  reporter: [
-    ['html', { open: 'never' }],
-    ['list'],
-    ['json', { outputFile: jsonOutputFile }] // Save JSON results to unique path per batch index
-  ],
+  reporter: reporters,
   use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
