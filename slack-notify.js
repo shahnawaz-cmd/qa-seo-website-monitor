@@ -218,6 +218,8 @@ if (siteName === 'Website' && filesToParse.length > 0) {
                 siteName = 'VSR';
             } else if (parsedSample.host.includes('vehiclehistory.eu')) {
                 siteName = 'VHREU';
+            } else if (parsedSample.host.includes('classicdecoder.com')) {
+                siteName = 'CD';
             }
         }
     } catch (e) {

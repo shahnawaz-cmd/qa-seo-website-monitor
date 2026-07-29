@@ -1,4 +1,4 @@
-name: Universal Website Monitoring - Vehicle History EU
+name: Universal Website Monitoring - Classic Decoder
 
 permissions:
   contents: write
@@ -6,15 +6,18 @@ permissions:
   id-token: write
 
 on:
+  push:
+    branches:
+      - main
   schedule:
-    # Run every 18 hours
-    - cron: '0 */18 * * *'
+    # Run daily at 2:00 AM UTC (staggered to avoid overlaps)
+    - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
       target_url:
         description: 'Target Website/Sitemap URL to monitor'
         required: true
-        default: 'https://vehiclehistory.eu'
+        default: 'https://classicdecoder.com'
       batch_size:
         description: 'Number of URLs to check in each parallel batch'
         required: false
@@ -49,7 +52,7 @@ jobs:
       run: npm run build
 
     - name: Run Sitemap Discovery
-      run: node dist/discover.js "${{ github.event.inputs.target_url || 'https://vehiclehistory.eu' }}"
+      run: node dist/discover.js "${{ github.event.inputs.target_url || 'https://classicdecoder.com' }}"
 
     - name: Calculate Matrix Batches
       id: set-matrix
@@ -61,7 +64,7 @@ jobs:
     - name: Set Configuration Outputs
       id: vars
       run: |
-        echo "target_url=${{ github.event.inputs.target_url || 'https://vehiclehistory.eu' }}" >> $GITHUB_OUTPUT
+        echo "target_url=${{ github.event.inputs.target_url || 'https://classicdecoder.com' }}" >> $GITHUB_OUTPUT
         echo "batch_size=${{ github.event.inputs.batch_size || '50' }}" >> $GITHUB_OUTPUT
 
     - name: Upload Discovered URL List and Metadata
