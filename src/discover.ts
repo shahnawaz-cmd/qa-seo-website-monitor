@@ -149,6 +149,8 @@ async function discover(baseUrl: string) {
     siteName = 'VNCA';
   } else if (urlObj.host.includes('motorcyclevinlookup.com')) {
     siteName = 'MVL';
+  } else if (urlObj.host.includes('smartcarcheck.uk')) {
+    siteName = 'SCC';
   }
 
   if (!fs.existsSync('playwright-report')) {

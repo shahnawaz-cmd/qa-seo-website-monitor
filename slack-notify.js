@@ -247,6 +247,8 @@ if (siteName === 'Website' && filesToParse.length > 0) {
                 siteName = 'VNCA';
             } else if (parsedSample.host.includes('motorcyclevinlookup.com')) {
                 siteName = 'MVL';
+            } else if (parsedSample.host.includes('smartcarcheck.uk')) {
+                siteName = 'SCC';
             }
         }
     } catch (e) {
