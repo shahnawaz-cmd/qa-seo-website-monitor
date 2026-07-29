@@ -214,6 +214,8 @@ if (siteName === 'Website' && filesToParse.length > 0) {
             siteName = parsedSample.host.replace('www.', '').split('.')[0].toUpperCase();
             if (parsedSample.host.includes('detailedvehiclehistory.com')) {
                 siteName = 'DVH';
+            } else if (parsedSample.host.includes('vehiclesreport.com')) {
+                siteName = 'VR';
             }
         }
     } catch (e) {

@@ -87,6 +87,8 @@ async function discover(baseUrl: string) {
   let siteName = urlObj.host.replace('www.', '').split('.')[0].toUpperCase();
   if (urlObj.host.includes('detailedvehiclehistory.com')) {
     siteName = 'DVH';
+  } else if (urlObj.host.includes('vehiclesreport.com')) {
+    siteName = 'VR';
   }
 
   if (!fs.existsSync('playwright-report')) {
