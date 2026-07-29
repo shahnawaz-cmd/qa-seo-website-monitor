@@ -66,11 +66,13 @@ jobs:
         echo "target_url=${{ github.event.inputs.target_url || 'https://detailedvehiclehistory.com' }}" >> $GITHUB_OUTPUT
         echo "batch_size=${{ github.event.inputs.batch_size || '50' }}" >> $GITHUB_OUTPUT
 
-    - name: Upload Discovered URL List
+    - name: Upload Discovered URL List and Metadata
       uses: actions/upload-artifact@v4
       with:
         name: discovered-urls
-        path: playwright-report/discovered_urls.json
+        path: |
+          playwright-report/discovered_urls.json
+          playwright-report/metadata.json
 
   audit:
     name: 🧪 Audit Batch ${{ matrix.batch_index }}
@@ -134,6 +136,9 @@ jobs:
     needs: [discover, audit]
     runs-on: ubuntu-latest
     if: always()
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -161,11 +166,15 @@ jobs:
       with:
         path: downloaded-blobs
 
-    - name: Consolidate Blob Directory
+    - name: Consolidate Blob Directory and Metadata
       run: |
+        mkdir -p playwright-report
         mkdir -p blob-reports
         find downloaded-blobs/ -name "report-*.zip" -exec cp {} blob-reports/ \;
-        ls -la blob-reports/
+        if [ -f downloaded-blobs/discovered-urls/metadata.json ]; then
+          cp downloaded-blobs/discovered-urls/metadata.json playwright-report/metadata.json
+        fi
+        ls -la playwright-report/
 
     - name: Merge Playwright Sharded Reports
       run: |

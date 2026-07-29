@@ -24,7 +24,6 @@ async function discover(baseUrl: string) {
       const res = await page.goto(url, { waitUntil: 'commit', timeout: 30000 });
       
       if (res && res.status() === 200) {
-        // Read raw response body directly instead of evaluating DOM text to prevent null document.body errors in XML
         const text = await res.text();
         const parsed = parser.parse(text.trim());
         
@@ -83,6 +82,22 @@ async function discover(baseUrl: string) {
 
   await browser.close();
 
+  // Determine dynamic Site Name
+  const urlObj = new URL(baseUrl);
+  let siteName = urlObj.host.replace('www.', '').split('.')[0].toUpperCase();
+  if (urlObj.host.includes('detailedvehiclehistory.com')) {
+    siteName = 'DVH';
+  }
+
+  if (!fs.existsSync('playwright-report')) {
+    fs.mkdirSync('playwright-report', { recursive: true });
+  }
+
+  // Save metadata to file to pass it to slack-notify.js
+  const metadata = { siteName, targetUrl: baseUrl };
+  fs.writeFileSync('playwright-report/metadata.json', JSON.stringify(metadata, null, 2), 'utf-8');
+  console.log(`[Discover] Saved metadata: ${JSON.stringify(metadata)}`);
+
   if (discovered.size === 0) {
     if (fs.existsSync('playwright-report/discovered_urls.json')) {
       console.log('[Discover] WAF Blocked or no URLs found. Preserving committed discovered_urls.json fallback list.');
@@ -92,9 +107,6 @@ async function discover(baseUrl: string) {
   }
 
   const urls = Array.from(discovered);
-  if (!fs.existsSync('playwright-report')) {
-    fs.mkdirSync('playwright-report', { recursive: true });
-  }
   fs.writeFileSync('playwright-report/discovered_urls.json', JSON.stringify(urls, null, 2), 'utf-8');
   console.log(`[Discover] Discovery complete. Found ${urls.length} URLs.`);
 }

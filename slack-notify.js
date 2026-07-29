@@ -162,6 +162,20 @@ const publicReportUrl = githubRepo !== 'owner/repo'
     ? `https://${githubRepo.split('/')[0]}.github.io/${githubRepo.split('/')[1]}/`
     : '#';
 
+// Read dynamic site name from metadata.json
+let siteName = 'Website';
+const metadataPath = path.join(resultsDir, 'metadata.json');
+if (fs.existsSync(metadataPath)) {
+    try {
+        const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+        if (metadata.siteName) {
+            siteName = metadata.siteName;
+        }
+    } catch (e) {
+        console.error('Failed to parse metadata.json:', e);
+    }
+}
+
 // READ BROKEN LINKS FROM PLAYWRIGHT LINK CHECKER SPEC
 let brokenLinksList = [];
 const brokenLinksJsonPath = path.join(resultsDir, 'broken-links.json');
@@ -200,7 +214,7 @@ const payload = {
             type: "header",
             text: {
                 type: "plain_text",
-                text: `🌐 Universal Website Monitor – Playwright CI (${githubEvent === 'schedule' ? 'Scheduled Run' : 'Manual/Push Run'})`,
+                text: `🌐 [${siteName}] Website Monitor – Playwright CI (${githubEvent === 'schedule' ? 'Scheduled Run' : 'Manual/Push Run'})`,
                 emoji: true
             }
         },
@@ -208,7 +222,7 @@ const payload = {
             type: "section",
             text: {
                 type: "mrkdwn",
-                text: `_Website stability and validation audit run summary._\n\n*Overall Status:* ${overallStatus}\n\n*📊 Test Results Summary:*\n• *Total Pages Tested:* ${totalTests}\n• *✅ Passed:* ${totalPassed}\n• *❌ Failed:* ${totalFailed}\n• *⏭️ Skipped:* ${totalSkipped}\n• *⚠️ Flaky:* ${totalFlaky}\n\n*🩺 Website Quality Metrics:*\n• *⚠️ Broken Pages:* ${totalBrokenPages}\n• *🔗 Broken Internal Links:* ${totalBrokenInternalLinks}\n• *⏱️ Slow Pages (>3s):* ${totalSlowPages}\n• *💻 Pages with Console Errors:* ${totalPagesWithConsoleErrors}\n• *🔍 Pages Missing SEO Elements:* ${totalPagesMissingSeo}\n• *🤖 Indexation Status:* ${totalCrawlablePages} Indexable / ${totalUncrawlablePages} Blocked${brokenLinksDetailsText}${failuresText}\n\n*Branch:* \`${githubRef}\`\n*Triggered by:* \`${githubActor}\`\n*Event:* \`${githubEvent}\`\n\n🔗 <${githubServer}/${githubRepo}/actions/runs/${githubRun}|View Workflow Run>\n🌐 <${publicReportUrl}|View Public HTML Report>`
+                text: `_Website stability and validation audit run summary for ${siteName}._\n\n*Overall Status:* ${overallStatus}\n\n*📊 Test Results Summary:*\n• *Total Pages Tested:* ${totalTests}\n• *✅ Passed:* ${totalPassed}\n• *❌ Failed:* ${totalFailed}\n• *⏭️ Skipped:* ${totalSkipped}\n• *⚠️ Flaky:* ${totalFlaky}\n\n*🩺 Website Quality Metrics:*\n• *⚠️ Broken Pages:* ${totalBrokenPages}\n• *🔗 Broken Internal Links:* ${totalBrokenInternalLinks}\n• *⏱️ Slow Pages (>3s):* ${totalSlowPages}\n• *💻 Pages with Console Errors:* ${totalPagesWithConsoleErrors}\n• *🔍 Pages Missing SEO Elements:* ${totalPagesMissingSeo}\n• *🤖 Indexation Status:* ${totalCrawlablePages} Indexable / ${totalUncrawlablePages} Blocked${brokenLinksDetailsText}${failuresText}\n\n*Branch:* \`${githubRef}\`\n*Triggered by:* \`${githubActor}\`\n*Event:* \`${githubEvent}\`\n\n🔗 <${githubServer}/${githubRepo}/actions/runs/${githubRun}|View Workflow Run>\n🌐 <${publicReportUrl}|View Public HTML Report>`
             }
         }
     ]
