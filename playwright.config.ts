@@ -1,19 +1,20 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const testTimeout = process.env.TEST_TIMEOUT ? parseInt(process.env.TEST_TIMEOUT) : 60000;
-const workerCount = process.env.WORKERS ? parseInt(process.env.WORKERS) : 10;
+
+// Smart Worker Scaling: 3 concurrent workers in CI to prevent 2-core VM CPU saturation, 10 workers locally
+const workerCount = process.env.CI 
+  ? 3 
+  : (process.env.WORKERS ? parseInt(process.env.WORKERS) : 10);
 
 const batchIndex = process.env.BATCH_INDEX || '0';
 const jsonOutputFile = `playwright-report/results-${batchIndex}.json`;
 
-// Dynamic reporters configuration
 const reporters: any[] = [['list']];
 
 if (process.env.CI) {
-  // CI uses Blob reports for parallel shard merging
   reporters.push(['blob']);
 } else {
-  // Local runs use standard HTML and JSON reporters
   reporters.push(['html', { open: 'never' }]);
   reporters.push(['json', { outputFile: jsonOutputFile }]);
 }
