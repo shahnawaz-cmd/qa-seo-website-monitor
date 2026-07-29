@@ -1,0 +1,91 @@
+name: Universal Website Monitoring - KOD Orchestrator
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+on:
+  schedule:
+    # Run daily at 08:30 AM UTC (Staggered to avoid peak concurrent runs)
+    - cron: '30 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  setup:
+    name: ⚙️ Setup Matrix Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Generate Matrix Output
+      id: set-matrix
+      run: |
+        # Compress JSON to a single line for output
+        JSON_CONTENT=$(cat kod-sites.json | tr -d '\n' | tr -d ' ')
+        echo "matrix=${JSON_CONTENT}" >> $GITHUB_OUTPUT
+
+  monitor:
+    name: 🌐 Monitor ${{ matrix.site.id }}
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 160
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        site: ${{ fromJson(needs.setup.outputs.matrix) }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: Compile Code
+      run: npm run build
+
+    - name: Run Sitemap Discovery
+      run: node dist/discover.js "${{ matrix.site.url }}"
+
+    - name: Execute Playwright Monitor Tests (All URLs)
+      env:
+        MONITOR_URL: "${{ matrix.site.url }}"
+        BATCH_SIZE: "all"
+      run: |
+        npx playwright test || true
+
+    - name: Execute Standalone Link Checker
+      run: |
+        node dist/check-links.js
+
+    - name: Deploy Consolidated Report to GitHub Pages Branch
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./playwright-report
+        allow_empty_commit: true
+
+    - name: Send Slack Notification
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        GITHUB_SERVER: ${{ github.server_url }}
+        GITHUB_REPO: ${{ github.repository }}
+        GITHUB_RUN: ${{ github.run_id }}
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_REF: ${{ github.ref_name }}
+        GITHUB_SHA_VAL: ${{ github.sha }}
+        GITHUB_EVENT: ${{ github.event_name }}
+      run: node slack-notify.js

@@ -135,6 +135,19 @@ async function discover(baseUrl: string) {
   // Determine dynamic Site Name
   const urlObj = new URL(baseUrl);
   let siteName = urlObj.host.replace('www.', '').split('.')[0].toUpperCase();
+
+  // Check KOD configuration file
+  try {
+    if (fs.existsSync('kod-sites.json')) {
+      const kodSites = JSON.parse(fs.readFileSync('kod-sites.json', 'utf-8'));
+      const matchingSite = kodSites.find((s: any) => new URL(s.url).host === urlObj.host);
+      if (matchingSite) {
+        siteName = matchingSite.id;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to read kod-sites.json:', err);
+  }
   if (urlObj.host.includes('detailedvehiclehistory.com')) {
     siteName = 'DVH';
   } else if (urlObj.host.includes('vehiclesreport.com')) {

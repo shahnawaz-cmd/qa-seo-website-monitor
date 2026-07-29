@@ -233,6 +233,22 @@ if (siteName === 'Website' && filesToParse.length > 0) {
         if (sampleUrl) {
             const parsedSample = new url.URL(sampleUrl);
             siteName = parsedSample.host.replace('www.', '').split('.')[0].toUpperCase();
+
+            try {
+                const fs = require('fs');
+                const path = require('path');
+                const kodPath = path.join(__dirname, 'kod-sites.json');
+                if (fs.existsSync(kodPath)) {
+                    const kodSites = JSON.parse(fs.readFileSync(kodPath, 'utf-8'));
+                    const matchingSite = kodSites.find(s => new URL(s.url).host === parsedSample.host);
+                    if (matchingSite) {
+                        siteName = matchingSite.id;
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to read kod-sites.json in slack-notify:', err);
+            }
+
             if (parsedSample.host.includes('detailedvehiclehistory.com')) {
                 siteName = 'DVH';
             } else if (parsedSample.host.includes('vehiclesreport.com')) {
