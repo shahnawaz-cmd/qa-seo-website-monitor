@@ -13,7 +13,7 @@ const jsonOutputFile = `playwright-report/results-${batchIndex}.json`;
 
 const reporters: any[] = [['list']];
 
-if (process.env.CI) {
+if (process.env.CI && process.env.BATCH_SIZE !== 'all') {
   reporters.push(['blob']);
 } else {
   reporters.push(['html', { open: 'never' }]);

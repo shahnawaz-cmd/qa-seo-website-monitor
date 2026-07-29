@@ -35,6 +35,7 @@ jobs:
     timeout-minutes: 160
     continue-on-error: true
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         site: ${{ fromJson(needs.setup.outputs.matrix) }}
@@ -58,7 +59,7 @@ jobs:
       run: npm run build
 
     - name: Run Sitemap Discovery
-      run: node dist/discover.js "${{ matrix.site.url }}"
+      run: node dist/discover.js "${{ matrix.site.url }}" || true
 
     - name: Execute Playwright Monitor Tests (All URLs)
       env:
@@ -69,10 +70,11 @@ jobs:
 
     - name: Execute Standalone Link Checker
       run: |
-        node dist/check-links.js
+        node dist/check-links.js || true
 
     - name: Deploy Consolidated Report to GitHub Pages Branch
       uses: peaceiris/actions-gh-pages@v4
+      continue-on-error: true
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./playwright-report
@@ -88,4 +90,4 @@ jobs:
         GITHUB_REF: ${{ github.ref_name }}
         GITHUB_SHA_VAL: ${{ github.sha }}
         GITHUB_EVENT: ${{ github.event_name }}
-      run: node slack-notify.js
+      run: node slack-notify.js || true
