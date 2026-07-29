@@ -170,6 +170,8 @@ async function discover(baseUrl: string) {
     siteName = 'PV';
   } else if (urlObj.host.includes('windowstickerslookup.com')) {
     siteName = 'WSL';
+  } else if (urlObj.host.includes('vehicledatabases.com')) {
+    siteName = 'VDB';
   }
 
   if (!fs.existsSync('playwright-report')) {

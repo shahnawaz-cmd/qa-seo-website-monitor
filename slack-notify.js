@@ -271,6 +271,8 @@ if (siteName === 'Website' && filesToParse.length > 0) {
                 siteName = 'PV';
             } else if (parsedSample.host.includes('windowstickerslookup.com')) {
                 siteName = 'WSL';
+            } else if (parsedSample.host.includes('vehicledatabases.com')) {
+                siteName = 'VDB';
             }
         }
     } catch (e) {
