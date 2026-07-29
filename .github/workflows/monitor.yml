@@ -136,15 +136,9 @@ jobs:
     needs: [discover, audit]
     runs-on: ubuntu-latest
     if: always()
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
-
-    - name: Setup Pages Deployment
-      uses: actions/configure-pages@v4
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -185,14 +179,11 @@ jobs:
       run: |
         node dist/check-links.js
 
-    - name: Upload Pages HTML Artifact
-      uses: actions/upload-pages-artifact@v3
+    - name: Deploy Consolidated Report to GitHub Pages Branch
+      uses: peaceiris/actions-gh-pages@v4
       with:
-        path: playwright-report/
-
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./playwright-report
 
     - name: Send Slack Notification
       env:
