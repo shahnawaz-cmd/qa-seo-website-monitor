@@ -245,6 +245,8 @@ if (siteName === 'Website' && filesToParse.length > 0) {
                 siteName = 'IVR';
             } else if (parsedSample.host.includes('vinnumber.ca')) {
                 siteName = 'VNCA';
+            } else if (parsedSample.host.includes('motorcyclevinlookup.com')) {
+                siteName = 'MVL';
             }
         }
     } catch (e) {

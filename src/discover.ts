@@ -147,6 +147,8 @@ async function discover(baseUrl: string) {
     siteName = 'IVR';
   } else if (urlObj.host.includes('vinnumber.ca')) {
     siteName = 'VNCA';
+  } else if (urlObj.host.includes('motorcyclevinlookup.com')) {
+    siteName = 'MVL';
   }
 
   if (!fs.existsSync('playwright-report')) {
