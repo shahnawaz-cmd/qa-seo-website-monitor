@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://alfaromeowindowsticker.com/sample",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://alfaromeowindowsticker.com/pricing"
+    ]
+  }
+]
