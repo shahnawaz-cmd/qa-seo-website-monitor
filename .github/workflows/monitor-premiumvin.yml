@@ -1,0 +1,200 @@
+name: Universal Website Monitoring - PV
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+on:
+  schedule:
+    # Run daily at 07:30 AM UTC (Staggered to avoid peak concurrent runs)
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target Website/Sitemap URL to monitor'
+        required: true
+        default: 'https://premiumvin.com'
+      batch_size:
+        description: 'Number of URLs to check in each parallel batch'
+        required: false
+        default: '50'
+
+jobs:
+  discover:
+    name: 🔍 Sitemap URL Discovery
+    runs-on: ubuntu-latest
+    timeout-minutes: 160
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      target_url: ${{ steps.vars.outputs.target_url }}
+      batch_size: ${{ steps.vars.outputs.batch_size }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Install Playwright Browsers (Required for WAF bypass during discovery)
+      run: npx playwright install --with-deps chromium
+
+    - name: Compile Code
+      run: npm run build
+
+    - name: Run Sitemap Discovery
+      run: node dist/discover.js "${{ github.event.inputs.target_url || 'https://premiumvin.com' }}"
+
+    - name: Calculate Matrix Batches
+      id: set-matrix
+      env:
+        BATCH_SIZE: "${{ github.event.inputs.batch_size || '50' }}"
+      run: |
+        echo "matrix=$(node dist/generate-matrix.js)" >> $GITHUB_OUTPUT
+
+    - name: Set Configuration Outputs
+      id: vars
+      run: |
+        echo "target_url=${{ github.event.inputs.target_url || 'https://premiumvin.com' }}" >> $GITHUB_OUTPUT
+        echo "batch_size=${{ github.event.inputs.batch_size || '50' }}" >> $GITHUB_OUTPUT
+
+    - name: Upload Discovered URL List and Metadata
+      uses: actions/upload-artifact@v4
+      with:
+        name: discovered-urls
+        path: |
+          playwright-report/discovered_urls.json
+          playwright-report/metadata.json
+
+  audit:
+    name: 🧪 Audit Batch ${{ matrix.batch_index }}
+    needs: discover
+    runs-on: ubuntu-latest
+    timeout-minutes: 160
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        batch_index: ${{ fromJson(needs.discover.outputs.matrix) }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: Compile Code
+      run: npm run build
+
+    - name: Download Discovered URL List
+      uses: actions/download-artifact@v4
+      with:
+        name: discovered-urls
+        path: ./playwright-report/
+
+    - name: Execute Playwright Monitor Tests
+      env:
+        MONITOR_URL: "${{ needs.discover.outputs.target_url }}"
+        BATCH_SIZE: "${{ needs.discover.outputs.batch_size }}"
+        BATCH_INDEX: "${{ matrix.batch_index }}"
+      run: |
+        npx playwright test || true
+    
+    - name: Prepare Blob Report for Sharding
+      if: always()
+      run: |
+        mkdir -p blob-report-rename
+        if [ -d blob-report ]; then
+          cp blob-report/*.zip blob-report-rename/report-${{ matrix.batch_index }}.zip
+        fi
+
+    - name: Upload Blob Fragment Artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: blob-report-${{ matrix.batch_index }}
+        path: blob-report-rename/report-${{ matrix.batch_index }}.zip
+
+  report:
+    name: 📊 Consolidate & Notify Slack
+    needs: [discover, audit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 160
+    if: always()
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Install Playwright Browsers (Required for merge and link checker)
+      run: npx playwright install --with-deps chromium
+
+    - name: Compile Code
+      run: npm run build
+
+    - name: Download All Blob Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: downloaded-blobs
+
+    - name: Consolidate Blob Directory and Metadata
+      run: |
+        mkdir -p playwright-report
+        mkdir -p blob-reports
+        find downloaded-blobs/ -name "report-*.zip" -exec cp {} blob-reports/ \;
+        if [ -f downloaded-blobs/discovered-urls/metadata.json ]; then
+          cp downloaded-blobs/discovered-urls/metadata.json playwright-report/metadata.json
+        fi
+        ls -la playwright-report/
+
+    - name: Merge Playwright Sharded Reports
+      env:
+        PLAYWRIGHT_JSON_OUTPUT_NAME: playwright-report/results.json
+      run: |
+        npx playwright merge-reports --reporter=html,json ./blob-reports
+        ls -la playwright-report/
+
+    - name: Execute Standalone Link Checker
+      run: |
+        node dist/check-links.js
+
+    - name: Deploy Consolidated Report to GitHub Pages Branch
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./playwright-report
+
+    - name: Send Slack Notification
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        GITHUB_SERVER: ${{ github.server_url }}
+        GITHUB_REPO: ${{ github.repository }}
+        GITHUB_RUN: ${{ github.run_id }}
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_REF: ${{ github.ref_name }}
+        GITHUB_SHA_VAL: ${{ github.sha }}
+        GITHUB_EVENT: ${{ github.event_name }}
+      run: node slack-notify.js

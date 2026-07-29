@@ -151,6 +151,10 @@ async function discover(baseUrl: string) {
     siteName = 'MVL';
   } else if (urlObj.host.includes('smartcarcheck.uk')) {
     siteName = 'SCC';
+  } else if (urlObj.host.includes('consultadevin.com')) {
+    siteName = 'CNV';
+  } else if (urlObj.host.includes('premiumvin.com')) {
+    siteName = 'PV';
   }
 
   if (!fs.existsSync('playwright-report')) {

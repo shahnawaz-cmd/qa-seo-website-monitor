@@ -249,6 +249,10 @@ if (siteName === 'Website' && filesToParse.length > 0) {
                 siteName = 'MVL';
             } else if (parsedSample.host.includes('smartcarcheck.uk')) {
                 siteName = 'SCC';
+            } else if (parsedSample.host.includes('consultadevin.com')) {
+                siteName = 'CNV';
+            } else if (parsedSample.host.includes('premiumvin.com')) {
+                siteName = 'PV';
             }
         }
     } catch (e) {
