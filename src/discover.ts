@@ -145,6 +145,8 @@ async function discover(baseUrl: string) {
     siteName = 'CD';
   } else if (urlObj.host.includes('instantvinreports.com')) {
     siteName = 'IVR';
+  } else if (urlObj.host.includes('vinnumber.ca')) {
+    siteName = 'VNCA';
   }
 
   if (!fs.existsSync('playwright-report')) {

@@ -243,6 +243,8 @@ if (siteName === 'Website' && filesToParse.length > 0) {
                 siteName = 'CD';
             } else if (parsedSample.host.includes('instantvinreports.com')) {
                 siteName = 'IVR';
+            } else if (parsedSample.host.includes('vinnumber.ca')) {
+                siteName = 'VNCA';
             }
         }
     } catch (e) {
