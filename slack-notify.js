@@ -23,6 +23,10 @@ let totalCrawlablePages = 0;
 let totalUncrawlablePages = 0;
 
 let failuresList = [];
+let brokenPagesList = [];
+let consoleErrorsList = [];
+let missingSeoList = [];
+let slowPagesList = [];
 
 // Resolve files to parse: either multiple results-*.json files from matrix run, or single results.json
 let filesToParse = [];
@@ -77,16 +81,25 @@ for (const file of filesToParse) {
                                     // 1. Broken Pages
                                     if (pageReport.statusCode === 0 || pageReport.statusCode >= 400) {
                                         totalBrokenPages++;
+                                        if (brokenPagesList.length < 5) {
+                                            brokenPagesList.push(`• <${pageReport.url}|${pageReport.url.replace('https://', '')}> (Status: ${pageReport.statusCode})`);
+                                        }
                                     }
                                     
                                     // 2. Slow Pages (>3s)
                                     if (pageReport.loadTimeMs > 3000) {
                                         totalSlowPages++;
+                                        if (slowPagesList.length < 5) {
+                                            slowPagesList.push(`• <${pageReport.url}|${pageReport.url.replace('https://', '')}> (${(pageReport.loadTimeMs / 1000).toFixed(1)}s)`);
+                                        }
                                     }
                                     
                                     // 3. Console Errors
                                     if (pageReport.consoleErrors && pageReport.consoleErrors.length > 0) {
                                         totalPagesWithConsoleErrors++;
+                                        if (consoleErrorsList.length < 5) {
+                                            consoleErrorsList.push(`• <${pageReport.url}|${pageReport.url.replace('https://', '')}> (${pageReport.consoleErrors.length} errors)`);
+                                        }
                                     }
                                     
                                     // 4. Missing SEO elements
@@ -96,6 +109,14 @@ for (const file of filesToParse) {
                                     const hasMissingH1 = !pageReport.h1Tags || pageReport.h1Tags.length === 0;
                                     if (hasMissingTitle || hasMissingDesc || hasMissingCanonical || hasMissingH1) {
                                         totalPagesMissingSeo++;
+                                        if (missingSeoList.length < 5) {
+                                            let missingParts = [];
+                                            if (hasMissingTitle) missingParts.push('Title');
+                                            if (hasMissingDesc) missingParts.push('Desc');
+                                            if (hasMissingCanonical) missingParts.push('Canonical');
+                                            if (hasMissingH1) missingParts.push('H1');
+                                            missingSeoList.push(`• <${pageReport.url}|${pageReport.url.replace('https://', '')}> (Missing: ${missingParts.join(', ')})`);
+                                        }
                                     }
 
                                     // 5. Crawlability/Indexation
@@ -250,6 +271,22 @@ if (brokenLinksList.length > 0) {
     });
 }
 
+// Format detailed validation failure lists (Top 5 each)
+let brokenPagesSection = '';
+if (brokenPagesList.length > 0) {
+    brokenPagesSection = `\n\n*⚠️ Broken Pages List (Top 5):*\n${brokenPagesList.join('\n')}`;
+}
+
+let consoleErrorsSection = '';
+if (consoleErrorsList.length > 0) {
+    consoleErrorsSection = `\n\n*💻 Console Errors List (Top 5):*\n${consoleErrorsList.join('\n')}`;
+}
+
+let missingSeoSection = '';
+if (missingSeoList.length > 0) {
+    missingSeoSection = `\n\n*🔍 Missing SEO Elements (Top 5):*\n${missingSeoList.join('\n')}`;
+}
+
 // Format failure logs block if page failures exist
 let failuresText = '';
 if (failuresList.length > 0) {
@@ -273,7 +310,7 @@ const payload = {
             type: "section",
             text: {
                 type: "mrkdwn",
-                text: `_Website stability and validation audit run summary for ${siteName}._\n\n*Overall Status:* ${overallStatus}\n\n*📊 Test Results Summary:*\n• *Total Pages Tested:* ${totalTests}\n• *✅ Passed:* ${totalPassed}\n• *❌ Failed:* ${totalFailed}\n• *⏭️ Skipped:* ${totalSkipped}\n• *⚠️ Flaky:* ${totalFlaky}\n\n*🩺 Website Quality Metrics:*\n• *⚠️ Broken Pages:* ${totalBrokenPages}\n• *🔗 Broken Internal Links:* ${totalBrokenInternalLinks}\n• *⏱️ Slow Pages (>3s):* ${totalSlowPages}\n• *💻 Pages with Console Errors:* ${totalPagesWithConsoleErrors}\n• *🔍 Pages Missing SEO Elements:* ${totalPagesMissingSeo}\n• *🤖 Indexation Status:* ${totalCrawlablePages} Indexable / ${totalUncrawlablePages} Blocked${brokenLinksDetailsText}${failuresText}\n\n*Branch:* \`${githubRef}\`\n*Triggered by:* \`${githubActor}\`\n*Event:* \`${githubEvent}\`\n\n🔗 <${githubServer}/${githubRepo}/actions/runs/${githubRun}|View Workflow Run>\n🌐 <${publicReportUrl}|View Public HTML Report>`
+                text: `_Website stability and validation audit run summary for ${siteName}._\n\n*Overall Status:* ${overallStatus}\n\n*📊 Test Results Summary:*\n• *Total Pages Tested:* ${totalTests}\n• *✅ Passed:* ${totalPassed}\n• *❌ Failed:* ${totalFailed}\n• *⏭️ Skipped:* ${totalSkipped}\n• *⚠️ Flaky:* ${totalFlaky}\n\n*🩺 Website Quality Metrics:*\n• *⚠️ Broken Pages:* ${totalBrokenPages}\n• *🔗 Broken Internal Links:* ${totalBrokenInternalLinks}\n• *⏱️ Slow Pages (>3s):* ${totalSlowPages}\n• *💻 Pages with Console Errors:* ${totalPagesWithConsoleErrors}\n• *🔍 Pages Missing SEO Elements:* ${totalPagesMissingSeo}\n• *🤖 Indexation Status:* ${totalCrawlablePages} Indexable / ${totalUncrawlablePages} Blocked${brokenPagesSection}${brokenLinksDetailsText}${consoleErrorsSection}${missingSeoSection}${failuresText}\n\n*Branch:* \`${githubRef}\`\n*Triggered by:* \`${githubActor}\`\n*Event:* \`${githubEvent}\`\n\n🔗 <${githubServer}/${githubRepo}/actions/runs/${githubRun}|View Workflow Run>\n🌐 <${publicReportUrl}|View Public HTML Report>`
             }
         }
     ]
