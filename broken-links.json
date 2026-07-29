@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://cadillacwindowsticker.com/sample",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://cadillacwindowsticker.com/pricing"
+    ]
+  }
+]
