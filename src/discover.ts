@@ -89,6 +89,8 @@ async function discover(baseUrl: string) {
     siteName = 'DVH';
   } else if (urlObj.host.includes('vehiclesreport.com')) {
     siteName = 'VSR';
+  } else if (urlObj.host.includes('vehiclehistory.eu')) {
+    siteName = 'VHREU';
   }
 
   if (!fs.existsSync('playwright-report')) {

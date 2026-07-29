@@ -216,6 +216,8 @@ if (siteName === 'Website' && filesToParse.length > 0) {
                 siteName = 'DVH';
             } else if (parsedSample.host.includes('vehiclesreport.com')) {
                 siteName = 'VSR';
+            } else if (parsedSample.host.includes('vehiclehistory.eu')) {
+                siteName = 'VHREU';
             }
         }
     } catch (e) {

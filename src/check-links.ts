@@ -90,7 +90,7 @@ async function checkLinks() {
     while (index < uniqueLinks.length) {
       const link = uniqueLinks[index++];
       if (!link) break;
-
+      if (link.includes('/cdn-cgi/')) continue;
       try {
         const res = await requestContext.get(link, {
           timeout: linkTimeout,
