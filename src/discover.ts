@@ -168,6 +168,8 @@ async function discover(baseUrl: string) {
     siteName = 'CNV';
   } else if (urlObj.host.includes('premiumvin.com')) {
     siteName = 'PV';
+  } else if (urlObj.host.includes('windowstickerslookup.com')) {
+    siteName = 'WSL';
   }
 
   if (!fs.existsSync('playwright-report')) {

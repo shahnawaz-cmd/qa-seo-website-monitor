@@ -269,6 +269,8 @@ if (siteName === 'Website' && filesToParse.length > 0) {
                 siteName = 'CNV';
             } else if (parsedSample.host.includes('premiumvin.com')) {
                 siteName = 'PV';
+            } else if (parsedSample.host.includes('windowstickerslookup.com')) {
+                siteName = 'WSL';
             }
         }
     } catch (e) {
