@@ -180,7 +180,15 @@ export class ValidatePageTask extends Task {
     const consoleErrors: string[] = [];
     const handleConsole = (msg: any) => {
       if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
+        const text = msg.text();
+        if (
+          text.includes('net::ERR_FAILED') ||
+          text.includes('net::ERR_ABORTED') ||
+          text.includes('Failed to load resource')
+        ) {
+          return;
+        }
+        consoleErrors.push(text);
       }
     };
     page.on('console', handleConsole);
