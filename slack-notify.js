@@ -98,7 +98,11 @@ for (const file of filesToParse) {
                                     if (pageReport.consoleErrors && pageReport.consoleErrors.length > 0) {
                                         totalPagesWithConsoleErrors++;
                                         if (consoleErrorsList.length < 5) {
-                                            consoleErrorsList.push(`• <${pageReport.url}|${pageReport.url.replace('https://', '')}> (${pageReport.consoleErrors.length} errors)`);
+                                            const errorLines = pageReport.consoleErrors.slice(0, 3).map(e => {
+                                                const text = typeof e === 'object' ? (e.text || JSON.stringify(e)) : e;
+                                                return `    _> \`${text.replace(/[\n\r]/g, ' ').substring(0, 80)}\`_`;
+                                            }).join('\n');
+                                            consoleErrorsList.push(`• <${pageReport.url}|${pageReport.url.replace('https://', '')}> (${pageReport.consoleErrors.length} errors):\n${errorLines}`);
                                         }
                                     }
                                     
@@ -178,10 +182,6 @@ const githubRun = process.env.GITHUB_RUN || '1';
 const githubActor = process.env.GITHUB_ACTOR || 'actor';
 const githubRef = process.env.GITHUB_REF || 'main';
 const githubEvent = process.env.GITHUB_EVENT || 'push';
-
-const publicReportUrl = githubRepo !== 'owner/repo' 
-    ? `https://${githubRepo.split('/')[0]}.github.io/${githubRepo.split('/')[1]}/`
-    : '#';
 
 // 1. Read dynamic site name from metadata.json
 let siteName = 'Website';
@@ -303,6 +303,10 @@ if (overallStatus === '❌ FAIL') {
     }
 }
 
+const publicReportUrl = githubRepo !== 'owner/repo' 
+    ? `https://${githubRepo.split('/')[0]}.github.io/${githubRepo.split('/')[1]}/${siteName.toLowerCase()}/`
+    : '#';
+
 // READ BROKEN LINKS FROM PLAYWRIGHT LINK CHECKER SPEC
 let brokenLinksList = [];
 const brokenLinksJsonPath = path.join(resultsDir, 'broken-links.json');
@@ -322,7 +326,7 @@ if (brokenLinksList.length > 0) {
     brokenLinksList.slice(0, 5).forEach((b) => {
         const pageRef = b.pagesFoundOn?.[0] || 'site page';
         const pageShort = pageRef.replace('https://', '');
-        brokenLinksDetailsText += `• <${b.url}|${b.url.replace('https://', '')}> (Found on: <${pageRef}|${pageShort}>)\n`;
+        brokenLinksDetailsText += `• <${b.url}|${b.url.replace('https://', '')}> (Status: ${b.statusCode || 0} - ${b.statusText || 'Error'}) - Found on: <${pageRef}|${pageShort}>\n`;
     });
 }
 
@@ -335,6 +339,11 @@ if (brokenPagesList.length > 0) {
 let consoleErrorsSection = '';
 if (consoleErrorsList.length > 0) {
     consoleErrorsSection = `\n\n*💻 Console Errors List (Top 5):*\n${consoleErrorsList.join('\n')}`;
+}
+
+let slowPagesSection = '';
+if (slowPagesList.length > 0) {
+    slowPagesSection = `\n\n*⏱️ Slow Pages List (Top 5):*\n${slowPagesList.join('\n')}`;
 }
 
 let missingSeoSection = '';
@@ -365,7 +374,7 @@ const payload = {
             type: "section",
             text: {
                 type: "mrkdwn",
-                text: `${mentionText}_Website stability and validation audit run summary for ${siteName}._\n\n*Overall Status:* ${overallStatus}\n\n*📊 Test Results Summary:*\n• *Total Pages Tested:* ${totalTests}\n• *✅ Passed:* ${totalPassed}\n• *❌ Failed:* ${totalFailed}\n• *⏭️ Skipped:* ${totalSkipped}\n• *⚠️ Flaky:* ${totalFlaky}\n\n*🩺 Website Quality Metrics:*\n• *⚠️ Broken Pages:* ${totalBrokenPages}\n• *🔗 Broken Internal Links:* ${totalBrokenInternalLinks}\n• *⏱️ Slow Pages (>3s):* ${totalSlowPages}\n• *💻 Pages with Console Errors:* ${totalPagesWithConsoleErrors}\n• *🔍 Pages Missing SEO Elements:* ${totalPagesMissingSeo}\n• *🤖 Indexation Status:* ${totalCrawlablePages} Indexable / ${totalUncrawlablePages} Blocked${brokenPagesSection}${brokenLinksDetailsText}${consoleErrorsSection}${missingSeoSection}${failuresText}\n\n*Branch:* \`${githubRef}\`\n*Triggered by:* \`${githubActor}\`\n*Event:* \`${githubEvent}\`\n\n🔗 <${githubServer}/${githubRepo}/actions/runs/${githubRun}|View Workflow Run>\n🌐 <${publicReportUrl}|View Public HTML Report>`
+                text: `${mentionText}_Website stability and validation audit run summary for ${siteName}._\n\n*Overall Status:* ${overallStatus}\n\n*📊 Test Results Summary:*\n• *Total Pages Tested:* ${totalTests}\n• *✅ Passed:* ${totalPassed}\n• *❌ Failed:* ${totalFailed}\n• *⏭️ Skipped:* ${totalSkipped}\n• *⚠️ Flaky:* ${totalFlaky}\n\n*🩺 Website Quality Metrics:*\n• *⚠️ Broken Pages:* ${totalBrokenPages}\n• *🔗 Broken Internal Links:* ${totalBrokenInternalLinks}\n• *⏱️ Slow Pages (>3s):* ${totalSlowPages}\n• *💻 Pages with Console Errors:* ${totalPagesWithConsoleErrors}\n• *🔍 Pages Missing SEO Elements:* ${totalPagesMissingSeo}\n• *🤖 Indexation Status:* ${totalCrawlablePages} Indexable / ${totalUncrawlablePages} Blocked${brokenPagesSection}${brokenLinksDetailsText}${consoleErrorsSection}${slowPagesSection}${missingSeoSection}${failuresText}\n\n*Branch:* \`${githubRef}\`\n*Triggered by:* \`${githubActor}\`\n*Event:* \`${githubEvent}\`\n\n🔗 <${githubServer}/${githubRepo}/actions/runs/${githubRun}|View Workflow Run>\n🌐 <${publicReportUrl}|View Public HTML Report>`
             }
         }
     ]

@@ -78,6 +78,8 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./playwright-report
+        destination_dir: ${{ matrix.site.id }}
+        keep_files: true
         allow_empty_commit: true
 
     - name: Send Slack Notification

@@ -186,6 +186,8 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./playwright-report
+        destination_dir: pv
+        keep_files: true
 
     - name: Send Slack Notification
       env:
