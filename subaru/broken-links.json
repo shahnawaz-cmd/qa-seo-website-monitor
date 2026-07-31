@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://subaruwindowstickers.com/homepage",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://subaruwindowstickers.com/blog/how-to-find-subaru-fuel-economy-by-vin"
+    ]
+  }
+]
