@@ -1,18 +1,1 @@
-[
-  {
-    "url": "https://vwwindowstickers.com/sample",
-    "statusCode": 404,
-    "statusText": "Not Found",
-    "pagesFoundOn": [
-      "https://vwwindowstickers.com/pricing"
-    ]
-  },
-  {
-    "url": "https://vwwindowstickers.com/vin-check/ws-preview?vin=WVWSE7CD8TW238486",
-    "statusCode": 503,
-    "statusText": "Service Unavailable",
-    "pagesFoundOn": [
-      "https://vwwindowstickers.com/"
-    ]
-  }
-]
+[]
