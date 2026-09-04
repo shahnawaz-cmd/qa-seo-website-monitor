@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://vwwindowstickers.com/vin-check/ws-preview?vin=3VWGM7BUXRM048320",
+    "statusCode": 0,
+    "statusText": "apiRequestContext.get: Timeout 120000ms exceeded.\nCall log:\n  - → GET https://vwwindowstickers.com/vin-check/ws-preview?vin=3VWGM7BUXRM048320\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n",
+    "pagesFoundOn": [
+      "https://vwwindowstickers.com/"
+    ]
+  }
+]
