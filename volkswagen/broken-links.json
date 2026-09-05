@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "url": "https://volkswagenwindowsticker.com/msrp",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://volkswagenwindowsticker.com/pricing",
+      "https://volkswagenwindowsticker.com/vehicle-recalls",
+      "https://volkswagenwindowsticker.com/vin-check",
+      "https://volkswagenwindowsticker.com/request-a-refund",
+      "https://volkswagenwindowsticker.com/vin-decoder",
+      "https://volkswagenwindowsticker.com/contact-us",
+      "https://volkswagenwindowsticker.com/specs",
+      "https://volkswagenwindowsticker.com/build-sheet",
+      "https://volkswagenwindowsticker.com/options",
+      "https://volkswagenwindowsticker.com/warranty",
+      "https://volkswagenwindowsticker.com/paint-code",
+      "https://volkswagenwindowsticker.com/about-us",
+      "https://volkswagenwindowsticker.com/privacy-policy",
+      "https://volkswagenwindowsticker.com/"
+    ]
+  }
+]
