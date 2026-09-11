@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "url": "https://infinitiwindowsticker.com/",
+    "statusCode": 0,
+    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://infinitiwindowsticker.com/\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n",
+    "pagesFoundOn": [
+      "https://infinitiwindowsticker.com/pricing",
+      "https://infinitiwindowsticker.com/msrp-lookup-by-vin",
+      "https://infinitiwindowsticker.com/recalls",
+      "https://infinitiwindowsticker.com/contact-us",
+      "https://infinitiwindowsticker.com/specs-by-vin",
+      "https://infinitiwindowsticker.com/warranty",
+      "https://infinitiwindowsticker.com/paint-code",
+      "https://infinitiwindowsticker.com/build-sheet-by-vin",
+      "https://infinitiwindowsticker.com/options-by-vin",
+      "https://infinitiwindowsticker.com/request-a-refund",
+      "https://infinitiwindowsticker.com/vin-decoder",
+      "https://infinitiwindowsticker.com/about-us",
+      "https://infinitiwindowsticker.com/privacy-policy",
+      "https://infinitiwindowsticker.com/",
+      "https://infinitiwindowsticker.com/blog/how-accurate-are-infiniti-window-stickers-from-vin",
+      "https://infinitiwindowsticker.com/blog/infiniti-window-sticker-vs-vin-decoder-which-gives-more-details",
+      "https://infinitiwindowsticker.com/blog/what-is-an-infiniti-vin-and-where-to-find-it",
+      "https://infinitiwindowsticker.com/blog/original-vs-recreated-infiniti-window-sticker-what-is-the-difference",
+      "https://infinitiwindowsticker.com/blog/the-differences-between-window-sticker-vs-build-sheet-explained",
+      "https://infinitiwindowsticker.com/blog/how-to-verify-factory-options-using-an-infiniti-window-sticker",
+      "https://infinitiwindowsticker.com/blog/what-features-came-with-my-infiniti"
+    ]
+  }
+]
