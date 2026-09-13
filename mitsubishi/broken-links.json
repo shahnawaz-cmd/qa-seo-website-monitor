@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "url": "https://mitsubishiwindowsticker.com/warranty-check-by-vin",
+    "statusCode": 0,
+    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://mitsubishiwindowsticker.com/warranty-check-by-vin\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n",
+    "pagesFoundOn": [
+      "https://mitsubishiwindowsticker.com/pricing",
+      "https://mitsubishiwindowsticker.com/msrp-lookup",
+      "https://mitsubishiwindowsticker.com/contact-us",
+      "https://mitsubishiwindowsticker.com/paint-code-by-vin",
+      "https://mitsubishiwindowsticker.com/build-sheet-by-vin",
+      "https://mitsubishiwindowsticker.com/specs-by-vin",
+      "https://mitsubishiwindowsticker.com/warranty-check-by-vin",
+      "https://mitsubishiwindowsticker.com/recalls-by-vin",
+      "https://mitsubishiwindowsticker.com/vin-decoder",
+      "https://mitsubishiwindowsticker.com/request-a-refund",
+      "https://mitsubishiwindowsticker.com/about-us",
+      "https://mitsubishiwindowsticker.com/privacy-policy",
+      "https://mitsubishiwindowsticker.com/",
+      "https://mitsubishiwindowsticker.com/blog/how-to-find-mitsubishi-factory-options-by-vin",
+      "https://mitsubishiwindowsticker.com/blog/how-to-verify-mitsubishi-original-mrsp-by-vin",
+      "https://mitsubishiwindowsticker.com/blog/how-to-get-a-mitsubishi-window-sticker-by-vin-best-guide"
+    ]
+  }
+]
