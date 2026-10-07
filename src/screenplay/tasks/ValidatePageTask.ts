@@ -56,7 +56,14 @@ export class ValidatePageTask extends Task {
     let loadTimeMs = 0;
     let html = '';
 
+    const pacingDelayMs = process.env.REQUEST_DELAY_MS 
+      ? parseInt(process.env.REQUEST_DELAY_MS, 10) 
+      : (process.env.CI ? 100 : 0);
+
     while (attempts <= this.maxRetries) {
+      if (pacingDelayMs > 0) {
+        await new Promise(resolve => setTimeout(resolve, pacingDelayMs));
+      }
       try {
         const startTime = Date.now();
         if (this.requestContext) {
@@ -225,6 +232,25 @@ export class ValidatePageTask extends Task {
 
     if (statusCode > 0 && statusCode < 400) {
       try {
+        // Use browser-level navigation timing (W3C Navigation Timing API)
+        // to measure actual browser page load instead of Playwright Node.js IPC/worker harness overhead
+        const browserTimingMs = await page.evaluate(() => {
+          const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+          if (nav) {
+            if (nav.domContentLoadedEventEnd > 0) {
+              return Math.round(nav.domContentLoadedEventEnd - nav.startTime);
+            }
+            if (nav.responseEnd > 0) {
+              return Math.round(nav.responseEnd - nav.startTime);
+            }
+          }
+          return null;
+        });
+
+        if (browserTimingMs && browserTimingMs > 0) {
+          loadTimeMs = browserTimingMs;
+        }
+
         title = await page.title();
         
         metaDescription = await page.evaluate(() => {

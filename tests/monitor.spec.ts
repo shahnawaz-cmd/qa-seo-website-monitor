@@ -12,10 +12,12 @@ const TARGET_URL = process.env.MONITOR_URL || 'https://detailedvehiclehistory.co
 // Read discovered URLs from sitemap setup
 let urlsToAudit: string[] = [];
 const jsonPath = path.resolve('./playwright-report/discovered_urls.json');
+const fallbackJsonPath = path.resolve('./discovered_urls.json');
+const resolvedJsonPath = fs.existsSync(jsonPath) ? jsonPath : (fs.existsSync(fallbackJsonPath) ? fallbackJsonPath : null);
 
-if (fs.existsSync(jsonPath)) {
+if (resolvedJsonPath) {
   try {
-    urlsToAudit = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+    urlsToAudit = JSON.parse(fs.readFileSync(resolvedJsonPath, 'utf-8'));
   } catch (err: any) {
     console.error(`[Playwright Spec] Failed to parse discovered_urls.json:`, err.message);
     urlsToAudit = [TARGET_URL];

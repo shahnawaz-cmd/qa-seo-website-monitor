@@ -193,6 +193,7 @@ async function discover(baseUrl: string) {
 
   const urls = Array.from(discovered);
   fs.writeFileSync('playwright-report/discovered_urls.json', JSON.stringify(urls, null, 2), 'utf-8');
+  fs.writeFileSync('discovered_urls.json', JSON.stringify(urls, null, 2), 'utf-8');
   console.log(`[Discover] Discovery complete. Found ${urls.length} URLs.`);
 }
 

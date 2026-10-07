@@ -80,6 +80,7 @@ jobs:
     continue-on-error: true
     strategy:
       fail-fast: false
+      max-parallel: 3
       matrix:
         batch_index: ${{ fromJson(needs.discover.outputs.matrix) }}
     steps:

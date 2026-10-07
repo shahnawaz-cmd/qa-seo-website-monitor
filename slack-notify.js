@@ -27,6 +27,11 @@ let brokenPagesList = [];
 let consoleErrorsList = [];
 let missingSeoList = [];
 let slowPagesList = [];
+let allSlowPages = [];
+
+const slowThresholdMs = process.env.LOAD_TIME_THRESHOLD 
+    ? parseInt(process.env.LOAD_TIME_THRESHOLD, 10) 
+    : (process.env.CI ? 5000 : 3000);
 
 // Resolve files to parse: either multiple results-*.json files from matrix run, or single results.json
 let filesToParse = [];
@@ -86,12 +91,13 @@ for (const file of filesToParse) {
                                         }
                                     }
                                     
-                                    // 2. Slow Pages (>3s)
-                                    if (pageReport.loadTimeMs > 3000) {
+                                    // 2. Slow Pages
+                                    if (pageReport.loadTimeMs > slowThresholdMs) {
                                         totalSlowPages++;
-                                        if (slowPagesList.length < 5) {
-                                            slowPagesList.push(`• <${pageReport.url}|${pageReport.url.replace('https://', '')}> (${(pageReport.loadTimeMs / 1000).toFixed(1)}s)`);
-                                        }
+                                        allSlowPages.push({
+                                            url: pageReport.url,
+                                            loadTimeMs: pageReport.loadTimeMs
+                                        });
                                     }
                                     
                                     // 3. Console Errors
@@ -341,9 +347,16 @@ if (consoleErrorsList.length > 0) {
     consoleErrorsSection = `\n\n*💻 Console Errors List (Top 5):*\n${consoleErrorsList.join('\n')}`;
 }
 
+if (allSlowPages.length > 0) {
+    allSlowPages.sort((a, b) => b.loadTimeMs - a.loadTimeMs);
+    slowPagesList = allSlowPages.slice(0, 5).map(p => 
+        `• <${p.url}|${p.url.replace('https://', '')}> (${(p.loadTimeMs / 1000).toFixed(1)}s)`
+    );
+}
+
 let slowPagesSection = '';
 if (slowPagesList.length > 0) {
-    slowPagesSection = `\n\n*⏱️ Slow Pages List (Top 5):*\n${slowPagesList.join('\n')}`;
+    slowPagesSection = `\n\n*⏱️ Slow Pages List (Top 5 Slowest):*\n${slowPagesList.join('\n')}`;
 }
 
 let missingSeoSection = '';
@@ -374,7 +387,7 @@ const payload = {
             type: "section",
             text: {
                 type: "mrkdwn",
-                text: `${mentionText}_Website stability and validation audit run summary for ${siteName}._\n\n*Overall Status:* ${overallStatus}\n\n*📊 Test Results Summary:*\n• *Total Pages Tested:* ${totalTests}\n• *✅ Passed:* ${totalPassed}\n• *❌ Failed:* ${totalFailed}\n• *⏭️ Skipped:* ${totalSkipped}\n• *⚠️ Flaky:* ${totalFlaky}\n\n*🩺 Website Quality Metrics:*\n• *⚠️ Broken Pages:* ${totalBrokenPages}\n• *🔗 Broken Internal Links:* ${totalBrokenInternalLinks}\n• *⏱️ Slow Pages (>3s):* ${totalSlowPages}\n• *💻 Pages with Console Errors:* ${totalPagesWithConsoleErrors}\n• *🔍 Pages Missing SEO Elements:* ${totalPagesMissingSeo}\n• *🤖 Indexation Status:* ${totalCrawlablePages} Indexable / ${totalUncrawlablePages} Blocked${brokenPagesSection}${brokenLinksDetailsText}${consoleErrorsSection}${slowPagesSection}${missingSeoSection}${failuresText}\n\n*Branch:* \`${githubRef}\`\n*Triggered by:* \`${githubActor}\`\n*Event:* \`${githubEvent}\`\n\n🔗 <${githubServer}/${githubRepo}/actions/runs/${githubRun}|View Workflow Run>\n🌐 <${publicReportUrl}|View Public HTML Report>`
+                text: `${mentionText}_Website stability and validation audit run summary for ${siteName}._\n\n*Overall Status:* ${overallStatus}\n\n*📊 Test Results Summary:*\n• *Total Pages Tested:* ${totalTests}\n• *✅ Passed:* ${totalPassed}\n• *❌ Failed:* ${totalFailed}\n• *⏭️ Skipped:* ${totalSkipped}\n• *⚠️ Flaky:* ${totalFlaky}\n\n*🩺 Website Quality Metrics:*\n• *⚠️ Broken Pages:* ${totalBrokenPages}\n• *🔗 Broken Internal Links:* ${totalBrokenInternalLinks}\n• *⏱️ Slow Pages (>${(slowThresholdMs / 1000).toFixed(0)}s):* ${totalSlowPages}\n• *💻 Pages with Console Errors:* ${totalPagesWithConsoleErrors}\n• *🔍 Pages Missing SEO Elements:* ${totalPagesMissingSeo}\n• *🤖 Indexation Status:* ${totalCrawlablePages} Indexable / ${totalUncrawlablePages} Blocked${brokenPagesSection}${brokenLinksDetailsText}${consoleErrorsSection}${slowPagesSection}${missingSeoSection}${failuresText}\n\n*Branch:* \`${githubRef}\`\n*Triggered by:* \`${githubActor}\`\n*Event:* \`${githubEvent}\`\n\n🔗 <${githubServer}/${githubRepo}/actions/runs/${githubRun}|View Workflow Run>\n🌐 <${publicReportUrl}|View Public HTML Report>`
             }
         }
     ]
