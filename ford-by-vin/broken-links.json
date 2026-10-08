@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://fordwindowstickerbyvin.com/vin-check/ws-preview?vin=3FMTK3SS0MMA01803",
+    "statusCode": 0,
+    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://fordwindowstickerbyvin.com/vin-check/ws-preview?vin=3FMTK3SS0MMA01803\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n    - cookie: cwa_ip=4.155.250.76\n",
+    "pagesFoundOn": [
+      "https://fordwindowstickerbyvin.com/"
+    ]
+  }
+]
