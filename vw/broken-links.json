@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "url": "https://vwwindowstickers.com/vin-decoder",
+    "statusCode": 502,
+    "statusText": "Bad Gateway",
+    "pagesFoundOn": [
+      "https://vwwindowstickers.com/pricing",
+      "https://vwwindowstickers.com/msrp",
+      "https://vwwindowstickers.com/recall-check",
+      "https://vwwindowstickers.com/vin-decoder",
+      "https://vwwindowstickers.com/paint-code-by-vin",
+      "https://vwwindowstickers.com/build-sheet-by-vin",
+      "https://vwwindowstickers.com/request-a-refund",
+      "https://vwwindowstickers.com/specs-by-vin",
+      "https://vwwindowstickers.com/warranty-check-by-vin",
+      "https://vwwindowstickers.com/options-by-vin-number",
+      "https://vwwindowstickers.com/contact-us",
+      "https://vwwindowstickers.com/about-us",
+      "https://vwwindowstickers.com/privacy-policy",
+      "https://vwwindowstickers.com/",
+      "https://vwwindowstickers.com/blog/vin-not-found",
+      "https://vwwindowstickers.com/blog/buying-a-vw-out-of-state",
+      "https://vwwindowstickers.com/blog/restoring-a-classic-vw-paperwork",
+      "https://vwwindowstickers.com/blog/vw-vin-cloning-red-flags",
+      "https://vwwindowstickers.com/blog/questions-before-buying-used-vw"
+    ]
+  }
+]
