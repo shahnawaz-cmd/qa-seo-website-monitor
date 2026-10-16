@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "url": "https://volvowindowsticker.com/vin-check/ws-preview?vin=YV1PZA8UCK1081506",
+    "statusCode": 0,
+    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://volvowindowsticker.com/vin-check/ws-preview?vin=YV1PZA8UCK1081506\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n    - cookie: cwa_ip=135.232.216.68\n",
+    "pagesFoundOn": [
+      "https://volvowindowsticker.com/"
+    ]
+  },
+  {
+    "url": "https://volvowindowsticker.com/vin-check/ws-preview?vin=7JDDA3VL6TG060578",
+    "statusCode": 0,
+    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://volvowindowsticker.com/vin-check/ws-preview?vin=7JDDA3VL6TG060578\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n    - cookie: cwa_ip=135.232.216.68\n",
+    "pagesFoundOn": [
+      "https://volvowindowsticker.com/"
+    ]
+  }
+]
