@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://minicooperwindowsticker.com/sample-report",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://minicooperwindowsticker.com/pricing"
+    ]
+  }
+]
