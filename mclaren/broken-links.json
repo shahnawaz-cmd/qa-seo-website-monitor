@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://mclarenwindowsticker.com/sample-report",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://mclarenwindowsticker.com/pricing"
+    ]
+  }
+]
