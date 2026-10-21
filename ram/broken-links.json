@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://ramwindowsticker.com/sample-report",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://ramwindowsticker.com/pricing"
+    ]
+  }
+]
