@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://lincolnwindowsticker.com/sample-report",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://lincolnwindowsticker.com/pricing"
+    ]
+  }
+]
