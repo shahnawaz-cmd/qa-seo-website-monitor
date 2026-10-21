@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://subaruwindowstickers.com/sample-report",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://subaruwindowstickers.com/pricing"
+    ]
+  }
+]
