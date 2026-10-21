@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://vwwindowstickers.com/sample-report",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://vwwindowstickers.com/pricing"
+    ]
+  }
+]
