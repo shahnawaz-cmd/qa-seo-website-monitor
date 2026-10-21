@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://buickwindowsticker.com/sample-report",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://buickwindowsticker.com/pricing"
+    ]
+  }
+]
