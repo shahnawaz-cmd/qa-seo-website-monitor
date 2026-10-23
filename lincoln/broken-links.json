@@ -6,5 +6,41 @@
     "pagesFoundOn": [
       "https://lincolnwindowsticker.com/pricing"
     ]
+  },
+  {
+    "url": "https://lincolnwindowsticker.com/blog",
+    "statusCode": 0,
+    "statusText": "apiRequestContext.get: Timeout 120000ms exceeded.\nCall log:\n  - → GET https://lincolnwindowsticker.com/blog\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n",
+    "pagesFoundOn": [
+      "https://lincolnwindowsticker.com/pricing",
+      "https://lincolnwindowsticker.com/paint-codes",
+      "https://lincolnwindowsticker.com/contact-us",
+      "https://lincolnwindowsticker.com/warranty",
+      "https://lincolnwindowsticker.com/vin-decoder",
+      "https://lincolnwindowsticker.com/lincoln-recalls-by-vin",
+      "https://lincolnwindowsticker.com/build-sheet",
+      "https://lincolnwindowsticker.com/specs",
+      "https://lincolnwindowsticker.com/options",
+      "https://lincolnwindowsticker.com/request-a-refund",
+      "https://lincolnwindowsticker.com/about-us",
+      "https://lincolnwindowsticker.com/privacy-policy",
+      "https://lincolnwindowsticker.com/",
+      "https://lincolnwindowsticker.com/blog",
+      "https://lincolnwindowsticker.com/blog/why-used-lincolns-are-cheap",
+      "https://lincolnwindowsticker.com/blog/how-to-tell-if-lincoln-is-awd",
+      "https://lincolnwindowsticker.com/blog/lincoln-dealer-price-vs-window-sticker",
+      "https://lincolnwindowsticker.com/blog/lincoln-clean-title-damage-history",
+      "https://lincolnwindowsticker.com/blog/lincoln-vin-not-found",
+      "https://lincolnwindowsticker.com/blog/lincoln-trim-levels",
+      "https://lincolnwindowsticker.com/blog/how-to-check-lincoln-specs-by-vin",
+      "https://lincolnwindowsticker.com/blog/how-to-get-window-sticker",
+      "https://lincolnwindowsticker.com/blog/category/vehicle-insights",
+      "https://lincolnwindowsticker.com/blog/category/vehicle-history-report",
+      "https://lincolnwindowsticker.com/blog/category/vin-lookup",
+      "https://lincolnwindowsticker.com/blog/category/window-sticker",
+      "https://lincolnwindowsticker.com/author/peter-adewale",
+      "https://lincolnwindowsticker.com/author/joses",
+      "https://lincolnwindowsticker.com/author/gracia"
+    ]
   }
 ]
