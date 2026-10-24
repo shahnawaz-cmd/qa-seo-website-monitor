@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "url": "https://volkswagenwindowsticker.com/sample-report",
+    "statusCode": 404,
+    "statusText": "Not Found",
+    "pagesFoundOn": [
+      "https://volkswagenwindowsticker.com/pricing"
+    ]
+  }
+]
