@@ -1,44 +1,8 @@
 [
   {
-    "url": "https://minicooperwindowsticker.com/buildsheet-by-vin",
-    "statusCode": 404,
-    "statusText": "Not Found",
-    "pagesFoundOn": [
-      "https://minicooperwindowsticker.com/vin-check",
-      "https://minicooperwindowsticker.com/msrp-by-vin",
-      "https://minicooperwindowsticker.com/options-by-vin",
-      "https://minicooperwindowsticker.com/pricing",
-      "https://minicooperwindowsticker.com/contact-us",
-      "https://minicooperwindowsticker.com/fuel-economy-by-vin",
-      "https://minicooperwindowsticker.com/warranty-check-by-vin",
-      "https://minicooperwindowsticker.com/paint-codes",
-      "https://minicooperwindowsticker.com/vin-decoder",
-      "https://minicooperwindowsticker.com/request-a-refund",
-      "https://minicooperwindowsticker.com/about-us",
-      "https://minicooperwindowsticker.com/privacy-policy",
-      "https://minicooperwindowsticker.com/",
-      "https://minicooperwindowsticker.com/blog",
-      "https://minicooperwindowsticker.com/blog/mini-restoration-build-sheet-vs-window-sticker",
-      "https://minicooperwindowsticker.com/blog/is-mini-factory-warranty-transferable",
-      "https://minicooperwindowsticker.com/blog/mini-actual-mpg-lower-than-rating",
-      "https://minicooperwindowsticker.com/blog/british-racing-green-mini-paint-code-differences",
-      "https://minicooperwindowsticker.com/blog/mini-paint-code-label-missing",
-      "https://minicooperwindowsticker.com/blog/mini-vin-shows-wrong-trim-or-model",
-      "https://minicooperwindowsticker.com/blog/factory-vs-dealer-installed-mini-options",
-      "https://minicooperwindowsticker.com/blog/mini-listing-does-not-match-window-sticker",
-      "https://minicooperwindowsticker.com/blog/mini-vin-not-found-solutions",
-      "https://minicooperwindowsticker.com/blog/how-to-read-mini-window-sticker",
-      "https://minicooperwindowsticker.com/blog/category/vin-lookup",
-      "https://minicooperwindowsticker.com/blog/category/window-sticker",
-      "https://minicooperwindowsticker.com/author/joses",
-      "https://minicooperwindowsticker.com/author/gracia",
-      "https://minicooperwindowsticker.com/author/peter-adewale"
-    ]
-  },
-  {
     "url": "https://minicooperwindowsticker.com/sample-report",
-    "statusCode": 404,
-    "statusText": "Not Found",
+    "statusCode": 500,
+    "statusText": "Internal Server Error",
     "pagesFoundOn": [
       "https://minicooperwindowsticker.com/pricing"
     ]
