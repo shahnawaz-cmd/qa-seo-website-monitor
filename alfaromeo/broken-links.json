@@ -1,18 +1,1 @@
-[
-  {
-    "url": "https://alfaromeowindowsticker.com/vin-check/ws-preview?vin=ZARFAMAN4M7645889",
-    "statusCode": 0,
-    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://alfaromeowindowsticker.com/vin-check/ws-preview?vin=ZARFAMAN4M7645889\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n    - cookie: cwa_ip=4.154.27.70; cwa_country=US\n  - ← 200 OK\n    - date: Wed, 28 Oct 2026 15:21:39 GMT\n    - content-type: text/html; charset=utf-8\n    - transfer-encoding: chunked\n    - connection: keep-alive\n    - cache-control: private, no-cache, no-store, max-age=0, must-revalidate\n    - referrer-policy: strict-origin-when-cross-origin\n    - link: </_next/static/media/797e433ab948586e-s.p.29207c2f.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </_next/static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </_next/static/media/caa3a2e1cccd8315-s.p.3b6cae6d.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"\n    - vary: Accept-Encoding, rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding\n    - x-powered-by: Next.js\n    - cf-cache-status: DYNAMIC\n    - x-frame-options: DENY\n    - report-to: {\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=5mlnTWvQRF2Kr6IuGeRM%2FTTjmoo2i02MLH5WG1%2BKyxy0UHRKxSD92jbL5J4Cge%2F7SbR%2BTp%2F0yCkWWGUD4Wr59nWcgpDkfZQFeTUdtSY64lkjQCLMlIRQWM67OSC1WEPOGqe8Pcj65jXfXakZhw%3D%3D\"}]}\n    - nel: {\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}\n    - content-security-policy: default-src 'self';   script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;   style-src 'self' 'unsafe-inline' https:;   img-src 'self' https: data: blob:;   font-src 'self' https: data:;   frame-src 'self' https:;   connect-src 'self' https: wss:;   media-src 'self' https: blob:;   object-src 'none';   base-uri 'self';   form-action 'self' https:;   frame-ancestors 'self';\n    - permissions-policy: microphone=(), camera=()\n    - content-encoding: br\n    - server: cloudflare\n    - cf-ray: a51aee6daae60765-MAN\n    - alt-svc: h3=\":443\"; ma=86400\n",
-    "pagesFoundOn": [
-      "https://alfaromeowindowsticker.com/"
-    ]
-  },
-  {
-    "url": "https://alfaromeowindowsticker.com/vin-check/ws-preview?vin=ZARFAMAN6L7635590",
-    "statusCode": 0,
-    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://alfaromeowindowsticker.com/vin-check/ws-preview?vin=ZARFAMAN6L7635590\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n    - cookie: cwa_ip=4.154.27.70; cwa_country=US\n",
-    "pagesFoundOn": [
-      "https://alfaromeowindowsticker.com/"
-    ]
-  }
-]
+[]
