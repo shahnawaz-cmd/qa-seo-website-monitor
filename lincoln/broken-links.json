@@ -6,21 +6,5 @@
     "pagesFoundOn": [
       "https://lincolnwindowsticker.com/pricing"
     ]
-  },
-  {
-    "url": "https://lincolnwindowsticker.com/vin-check/ws-preview?vin=1LNHL9EK7FG606562",
-    "statusCode": 522,
-    "statusText": "<none>",
-    "pagesFoundOn": [
-      "https://lincolnwindowsticker.com/"
-    ]
-  },
-  {
-    "url": "https://lincolnwindowsticker.com/vin-check/ws-preview?vin=5LMJJ2LT5JEL22102",
-    "statusCode": 525,
-    "statusText": "<none>",
-    "pagesFoundOn": [
-      "https://lincolnwindowsticker.com/"
-    ]
   }
 ]
