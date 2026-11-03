@@ -6,25 +6,5 @@
     "pagesFoundOn": [
       "https://mitsubishiwindowsticker.com/pricing"
     ]
-  },
-  {
-    "url": "https://mitsubishiwindowsticker.com/vin-check/ws-preview?vin=JA32U8FW8EU003668",
-    "statusCode": 0,
-    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://mitsubishiwindowsticker.com/vin-check/ws-preview?vin=JA32U8FW8EU003668\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n    - cookie: cwa_ip=64.236.135.119; cwa_country=US\n  - ← 200 OK\n    - date: Mon, 02 Nov 2026 19:11:05 GMT\n    - content-type: text/html; charset=utf-8\n    - transfer-encoding: chunked\n    - connection: keep-alive\n    - cache-control: private, no-cache, no-store, max-age=0, must-revalidate\n    - referrer-policy: strict-origin-when-cross-origin\n    - link: </_next/static/media/75affa71d1e2f6a7-s.p.51cde8ff.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </_next/static/media/8226f95c76ce3702-s.p.24ef737e.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </_next/static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </_next/static/media/8d05cfa5faa8406c-s.p.4adea45d.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </_next/static/media/dc0d9adbac686440-s.p.3b382e45.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"\n    - vary: Accept-Encoding, rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding\n    - x-powered-by: Next.js\n    - cf-cache-status: DYNAMIC\n    - x-frame-options: DENY\n    - report-to: {\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=tIfE5EsnmRmaXGWn%2FLWxLFoDiTkUXni411CI10jKpHoBN6CaqxJsHCaRG3hfT6xtcywDE%2FouN0XfjZRPpKPD8pUG17SE%2F0L7j%2B6BvOpVbbrtAbnNqtVlLwB2jmBsigBTsMeZT0kb0slaVQOIxnI%3D\"}]}\n    - nel: {\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}\n    - content-security-policy: default-src 'self';   script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;   style-src 'self' 'unsafe-inline' https:;   img-src 'self' https: data: blob:;   font-src 'self' https: data:;   frame-src 'self' https:;   connect-src 'self' https: wss:;   media-src 'self' https: blob:;   object-src 'none';   base-uri 'self';   form-action 'self' https:;   frame-ancestors 'self';\n    - permissions-policy: microphone=(), camera=()\n    - content-encoding: br\n    - server: cloudflare\n    - cf-ray: a54571681cabab90-YYZ\n    - alt-svc: h3=\":443\"; ma=86400\n",
-    "pagesFoundOn": [
-      "https://mitsubishiwindowsticker.com/"
-    ]
-  },
-  {
-    "url": "https://mitsubishiwindowsticker.com/blog/can-used-car-listing-be-wrong",
-    "statusCode": 0,
-    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://mitsubishiwindowsticker.com/blog/can-used-car-listing-be-wrong\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n    - cookie: cwa_ip=64.236.135.119; cwa_country=US\n",
-    "pagesFoundOn": [
-      "https://mitsubishiwindowsticker.com/blog",
-      "https://mitsubishiwindowsticker.com/blog/should-you-buy-former-rental-mitsubishi",
-      "https://mitsubishiwindowsticker.com/blog/clean-title-accident-damage-history",
-      "https://mitsubishiwindowsticker.com/blog/category/vehicle-history-report",
-      "https://mitsubishiwindowsticker.com/author/peter-adewale"
-    ]
   }
 ]
