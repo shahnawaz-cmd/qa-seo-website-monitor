@@ -1,10 +1,1 @@
-[
-  {
-    "url": "https://chevroletwindowsticker.com/report/vin/3GCPKTE25DG376747",
-    "statusCode": 0,
-    "statusText": "apiRequestContext.get: read ECONNRESET\nCall log:\n  - → GET https://chevroletwindowsticker.com/report/vin/3GCPKTE25DG376747\n    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\n    - accept: */*\n    - accept-encoding: gzip,deflate,br\n    - cookie: cwa_ip=4.242.52.182; cwa_country=US\n",
-    "pagesFoundOn": [
-      "https://chevroletwindowsticker.com/recalls"
-    ]
-  }
-]
+[]
