@@ -6,9 +6,6 @@ permissions:
   id-token: write
 
 on:
-  schedule:
-    # Run every 21.5 hours (approximated)
-    - cron: '30 */21 * * *'
   workflow_dispatch:
     inputs:
       target_url:

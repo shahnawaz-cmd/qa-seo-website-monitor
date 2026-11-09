@@ -6,9 +6,6 @@ permissions:
   id-token: write
 
 on:
-  schedule:
-    # Run daily at 08:30 AM UTC (Staggered to avoid peak concurrent runs)
-    - cron: '30 8 * * *'
   workflow_dispatch:
 
 jobs:
